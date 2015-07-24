@@ -1,18 +1,33 @@
 'use strict';
 
-let Struct = require('./struct');
+let struct = require('../index');
 
-let struct = new Struct({
-  id        : 'word',
-  attribute : 'word',
-  deviceId  : 'bcd[6]',
-  serialNo  : 'word'
-});
+let Attribute = new struct.BinaryStruct([
+  { length      : 10 },
+  { encrypted   : 3 },
+  { subpackaged : 1 },
+  { reserve     : 2 },
+]);
+
+let Message = new struct.Struct([
+  { id       : 'word' },
+  { attr     : Attribute },
+  { deviceId : 'bcd[6]' },
+  { serialNo : 'word' },
+  { body     : function () {
+    return this.attr.length;
+  } },
+  { checkCode :  }
+]);
 
 let b = new Buffer('3000001981412006778000010000000000000000000000000000000000000000000000000039', 'hex');
+let b2 = new Buffer('0019', 'hex');
 
-let r = struct.parse(b);
+let r = Message.parse(b);
 console.log('@r', r);
 
-let s = struct.serialize(r);
+let s = Message.serialize(r);
 console.log('@s', s);
+
+let r2 = Attribute.parse(b2);
+console.log('@r2', r2);
