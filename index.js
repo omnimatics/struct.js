@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = {
-  Struct       : require('./structs'),
-  BinaryStruct : require('./structs/binary')
+  Struct : require('./structs'),
+  Binary : require('./structs/binary'),
+  CRC    : require('./structs/crc')
 };

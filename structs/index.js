@@ -4,39 +4,68 @@ const _      = require('lodash');
 const common = require('../libs/common');
 
 const TYPES = { 
-  byte     : 1,
-  word     : 2,
-  dword    : 4,
-  'bcd[6]' : 6
+  BYTE  : { length : 1 },
+  WORD  : { length : 2 },
+  DWORD : { length : 4 }
 };
 
 class Struct {
-  constructor(struct) {
-    if (!struct) {
-      throw new Error('Definition is required');
-    }
+  /**
+   * @constructor
+   */
+  constructor(struct, parent) {
+    struct = _.isArray(struct) ? struct : [ struct ];
 
-    if (!_.isArray(struct)) {
-      throw new Error('Definition must be an array');
-    }
-
-    this.struct = struct;
+    this.parent = parent;
+    this.struct = struct || [];
   }
 
+  /**
+   * @method length
+   *
+   * Calculate the structure length.
+   */
+  length() {
+    const self = this;
+
+    let struct = self.struct;
+    let len    = 0;
+
+    if (_.isArray(struct)) {
+      struct = struct.filter(function (s) {
+        return _.isPlainObject(s);
+      });
+
+      _.each(struct, function (p, c) {
+        c = c.bind(self.parent);
+        len += c();
+      });
+    }
+
+    return len;
+  }
+
+  /**
+   * @method parse
+   *
+   * Parses the buffer into structured data.
+   */
   parse(buffer) {
     if (!Buffer.isBuffer(buffer)) {
       throw new Error('Argument must be a buffer');
     }
 
-    let struct = this.struct;
-    let pos    = 0;
-    let ret    = {};
+    const struct = this.struct;
+
+    let pos, ret;
+
+    pos = 0;
+    ret = {};
 
     _.each(struct, function (s) {
       let key, type, len;
 
-      s = common.objectify(s);
-
+      s    = common.objectify(s);
       key  = s.id;
       type = s.val;
 
@@ -44,16 +73,13 @@ class Struct {
         throw new Error(`Invalid type: ${type}`);
       }
 
-      if (_.isObject(type) && !_.isFunction(type)) {
-        len      = type.length();
-        ret[key] = type.parse(buffer.slice(pos, pos + len));
-      } else if (_.isFunction(type)) {
-        type = type.bind(ret);
+      if (type instanceof Struct) {
+        type.parent = ret;
 
-        len      = type();
-        ret[key] = buffer.toString('hex', pos, pos + len);
+        len      = type.length();
+        ret[key] = type.parse(buffer, pos);
       } else {
-        len      = TYPES[type];
+        len      = _typeLength(type, ret);
         ret[key] = buffer.toString('hex', pos, pos + len);
       }
 
@@ -63,10 +89,15 @@ class Struct {
     return ret;
   }
 
-  // serialize a JSON object
+  /**
+   * @method serialize
+   *
+   * Converts structured data into raw data.
+  */
   serialize(json) {
-    let struct = this.struct;
-    let hex    = '';
+    const struct = this.struct;
+
+    let hex = '';
 
     _.each(struct, function (s) {
       let key, type;
@@ -81,7 +112,7 @@ class Struct {
       }
 
       if (_.isObject(type)) {
-        // TODO
+        hex += type.serialize(json[key], hex);
       } else {
         hex += json[key];
       }
@@ -91,17 +122,51 @@ class Struct {
   }
 }
 
+/**
+ * @name _validType
+ * @private
+ *
+ * Checks if a data type is valid.
+ */
 function _validType(type) {
   let ret = true;
 
-  if (
-    !_.isObject(type) &&
-    !TYPES[type]
-  ) {
+  if (!_.isObject(type) && !_.isString(type)) {
     ret = false;
   }
 
   return ret;
+}
+
+/**
+ * @name _typeLength
+ * @private
+ *
+ * Calculate length by data type or property.
+ */
+function _typeLength(type, ref) {
+  let rx, len, ret;
+
+  rx   = type.match(/([A-Z]+)\[(\d+)\]/);
+  type = rx && rx[1] || type;
+  len  = rx && rx[2] || 1;
+  len  = Number(len);
+
+  if (TYPES[type]) {
+    // get type length
+    ret = TYPES[type].length * len;
+  } else if (ref) {
+    // get property length
+    type = type.split('.');
+
+    let key, prop;
+
+    key  = type[0];
+    prop = type[1];
+    ret  = ref[key] && ref[key][prop];
+  }
+
+  return ret || 0;
 }
 
 module.exports = Struct;
