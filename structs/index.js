@@ -9,6 +9,9 @@ const TYPES = {
   DWORD : { length : 4 }
 };
 
+/**
+ * @class Struct
+ */
 class Struct {
   /**
    * @constructor
@@ -123,7 +126,7 @@ class Struct {
 }
 
 /**
- * @name _validType
+ * @function _validType
  * @private
  *
  * Checks if a data type is valid.
@@ -139,7 +142,7 @@ function _validType(type) {
 }
 
 /**
- * @name _typeLength
+ * @function _typeLength
  * @private
  *
  * Calculate length by data type or property.

@@ -2,13 +2,29 @@
 
 const _ = require('lodash');
 
+/** @module libs/common */
 module.exports = {
+  pad       : pad,
   objectify : objectify,
   crc       : crc
 };
 
 /**
- * @name objectify
+ * Convenience function for lodash's padLeft().
+ *
+ * @function pad
+ * @param {string} s
+ * @param {number} width
+ * @param {string} z
+ */
+function pad(s, width, z) {
+  z = z || '0';
+
+  return _.padLeft(s, width, z);
+}
+
+/**
+ * @function objectify
  */
 function objectify(o) {
   let keys   = _.keys(o);
@@ -21,9 +37,9 @@ function objectify(o) {
 }
 
 /**
- * @name crc
+ * Calculates the check code for a given buffer.
  *
- * Calculates the check code for a given buffer
+ * @function crc
  */
 function crc(buffer) {
   buffer = Buffer.isBuffer(buffer) ? buffer : new Buffer(buffer, 'hex');
@@ -34,5 +50,5 @@ function crc(buffer) {
   });
 
   // pad the number to 2 significant digits
-  return _.padLeft(checkCode.toString(16), 2, '0');
+  return pad(checkCode.toString(16), 2);
 }

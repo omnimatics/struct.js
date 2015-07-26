@@ -4,18 +4,23 @@ const _      = require('lodash');
 const common = require('../libs/common');
 const Struct = require('./');
 
+/**
+ * @class Binary
+ * @extends Struct
+ */
 class Binary extends Struct {
   /**
    * @constructor
+   * @param {Array} struct
    */
   constructor(struct) {
     super(struct);
   }
 
   /**
-   * @method length
-   *
    * Calculates the total byte length.
+   *
+   * @method length
    */
   length() {
     const totalLen = _totalLength(this.struct);
@@ -25,9 +30,11 @@ class Binary extends Struct {
   }
 
   /**
-   * @method parse
-   *
    * Parses the buffer to generate structured data.
+   *
+   * @method parse
+   * @param {Buffer} buffer
+   * @param {number} pos
    */
   parse(buffer, pos) {
     let totalLen, bin, ret;
@@ -41,7 +48,7 @@ class Binary extends Struct {
 
     pos = 0;
     bin = parseInt(bin, 16).toString(2);
-    bin = _.padLeft(bin, totalLen, '0');
+    bin = common.pad(bin, totalLen);
 
     _.each(struct, function (s) {
       let key, len;
@@ -65,9 +72,10 @@ class Binary extends Struct {
   }
 
   /**
-   * @method serialize
-   *
    * Converts structured data into raw data.
+   *
+   * @method serialize
+   * @param {Object} json
    */
   serialize(json) {
     let bin, hex;
@@ -84,21 +92,22 @@ class Binary extends Struct {
       len = s.val;
       val = Number(json[key]).toString(2);
 
-      bin += _.padLeft(val, len, '0');
+      bin += common.pad(val, len);
     });
 
     hex = parseInt(bin, 2).toString(16);
 
     // 1 byte = 2 hex numbers,
     // pad accordingly
-    return _.padLeft(hex, this.length() * 2, '0');
+    return common.pad(hex, this.length() * 2);
   }
 }
 
 /**
- * @name _totalLength
- *
  * Calculates the total bit length.
+ *
+ * @function _totalLength
+ * @param {Array} struct
  */
 function _totalLength(struct) {
   const lens = _.map(struct, function (s) {
@@ -111,9 +120,10 @@ function _totalLength(struct) {
 }
 
 /**
- * @name _validLength
- *
  * Checks if length is a positive number.
+ *
+ * @function _validLength
+ * @param {number} len
  */
 function _validLength(len) {
   let ret = true;

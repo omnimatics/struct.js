@@ -28,7 +28,6 @@ console.log('@r', r);
 
 let s = Message.serialize(r);
 console.log('@s', s);
-
 console.log('@s === @b', Buffer.compare(b, s));
 
 let r2 = Attribute.parse(b2);

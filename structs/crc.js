@@ -4,6 +4,10 @@ const _      = require('lodash');
 const common = require('../libs/common');
 const Struct = require('./');
 
+/**
+ * @class CRC
+ * @extends Struct
+ */
 class CRC extends Struct {
   /**
    * @constructor
@@ -16,18 +20,18 @@ class CRC extends Struct {
   }
 
   /**
-   * @method length
-   *
    * Gets the CRC length.
+   *
+   * @method length
    */
   length() {
     return 1;
   }
 
   /**
-   * @method parse
-   *
    * Parses the buffer into structured data.
+   *
+   * @method parse
    */
   parse(oBuffer) {
     let start, end, buffer, crc, expectedCrc;
@@ -50,9 +54,11 @@ class CRC extends Struct {
   }
 
   /**
-   * @method serialize
-   *
    * Converts structured data into raw data.
+   *
+   * @method serialize
+   * @param {string} value
+   * @param {string} hex
    */
   serialize(value, hex) {
     return common.crc(hex);
