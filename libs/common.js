@@ -24,15 +24,24 @@ function pad(s, width, z) {
 }
 
 /**
+ * Breaks an object into an id-value object.
+ *
  * @function objectify
+ * @param {Object} o
  */
 function objectify(o) {
-  let keys   = _.keys(o);
-  let values = _.values(o);
+  if (!_.isPlainObject(o)) {
+    throw new Error('Must be plain object');
+  }
+
+  let id, val;
+
+  id  = _.keys(o);
+  val = _.values(o);
 
   return {
-    id  : keys[0],
-    val : values[0]
+    id  : id[0],
+    val : val[0]
   };
 }
 
@@ -42,7 +51,21 @@ function objectify(o) {
  * @function crc
  */
 function crc(buffer) {
-  buffer = Buffer.isBuffer(buffer) ? buffer : new Buffer(buffer, 'hex');
+  const isBuffer = Buffer.isBuffer(buffer);
+  const isHex    = /^[0-9a-fA-F]+$/.test(buffer);
+
+  // not buffer or hex, so throw
+  if (!isBuffer && !isHex) {
+    throw new TypeError('Invalid buffer or hex string');
+  }
+
+  buffer = isBuffer ? buffer : new Buffer(buffer, 'hex');
+
+  console.log('buffer', buffer);
+
+  if (buffer.length < 2) {
+    throw new RangeError('Byte length less than 2');
+  }
 
   // XOR byte with the next until end.
   let checkCode = _.reduce(buffer, function (prev, curr) {
