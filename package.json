@@ -1,12 +1,14 @@
 {
   "name": "struct.js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Pack/Unpack multibyte binary values from/to buffers",
   "main": "index.js",
   "dependencies": {
     "lodash": "^3.10.0"
   },
   "devDependencies": {
+    "chai": "^3.2.0",
+    "chai-as-promised": "^5.1.0",
     "mocha": "^2.2.5"
   },
   "scripts": {
