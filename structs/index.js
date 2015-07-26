@@ -3,12 +3,6 @@
 const _      = require('lodash');
 const common = require('../libs/common');
 
-const TYPES = { 
-  BYTE  : { length : 1 },
-  WORD  : { length : 2 },
-  DWORD : { length : 4 }
-};
-
 /**
  * @class Struct
  */
@@ -114,7 +108,7 @@ class Struct {
         throw new Error(`Invalid type: ${type}`);
       }
 
-      if (_.isObject(type)) {
+      if (!_.isFunction(type) && _.isObject(type)) {
         hex += type.serialize(json[key], hex);
       } else {
         hex += json[key];
@@ -134,7 +128,11 @@ class Struct {
 function _validType(type) {
   let ret = true;
 
-  if (!_.isObject(type) && !_.isString(type)) {
+  if (
+    !_.isObject(type)
+    && !_.isNumber(type)
+    && !_.isString(type)
+  ) {
     ret = false;
   }
 
@@ -148,16 +146,11 @@ function _validType(type) {
  * Calculate length by data type or property.
  */
 function _typeLength(type, ref) {
-  let rx, len, ret;
+  let ret;
 
-  rx   = type.match(/([A-Z]+)\[(\d+)\]/);
-  type = rx && rx[1] || type;
-  len  = rx && rx[2] || 1;
-  len  = Number(len);
-
-  if (TYPES[type]) {
+  if (_.isFunction(type) || _.isNumber(type)) {
     // get type length
-    ret = TYPES[type].length * len;
+    ret = _.isFunction(type) ? type() : type;
   } else if (ref) {
     // get property length
     type = type.split('.');

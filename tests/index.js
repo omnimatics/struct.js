@@ -1,21 +1,22 @@
 'use strict';
 
-let struct = require('../index');
+const struct    = require('../index');
+const DataTypes = struct.DataTypes;
 
-let Attribute = new struct.Binary([
+const Attribute = new struct.Binary([
   { reserve     : 2 },
   { subpackaged : 1 },
   { encrypted   : 3 },
   { length      : 10 }
 ]);
 
-let CRC = new struct.CRC(0, -1);
+const CRC = new struct.CRC(0, -1);
 
-let Message = new struct.Struct([
-  { id       : 'WORD' },
+const Message = new struct.Struct([
+  { id       : DataTypes.WORD },
   { attr     : Attribute },
-  { deviceId : 'BYTE[6]' },
-  { serialNo : 'WORD' },
+  { deviceId : DataTypes.BYTE(6) },
+  { serialNo : DataTypes.WORD },
   { body     : 'attr.length' },
   { crc      : CRC }
 ]);

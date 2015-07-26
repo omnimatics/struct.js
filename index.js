@@ -4,7 +4,8 @@
  * @module index
  */
 module.exports = {
-  Struct : require('./structs'),
-  Binary : require('./structs/binary'),
-  CRC    : require('./structs/crc')
+  Struct    : require('./structs'),
+  Binary    : require('./structs/binary'),
+  CRC       : require('./structs/crc'),
+  DataTypes : require('./libs/type')
 };
