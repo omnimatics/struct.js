@@ -61,8 +61,6 @@ function crc(buffer) {
 
   buffer = isBuffer ? buffer : new Buffer(buffer, 'hex');
 
-  console.log('buffer', buffer);
-
   if (buffer.length < 2) {
     throw new RangeError('Byte length less than 2');
   }

@@ -20,7 +20,7 @@ class Struct {
   /**
    * @method length
    *
-   * Calculate the structure length.
+   * Calculates the structure length.
    */
   length() {
     const self = this;
@@ -29,13 +29,36 @@ class Struct {
     let len    = 0;
 
     if (_.isArray(struct)) {
+      function _parseVal(v) {
+        let ret = 0;
+
+        if (_.isNumber(v)) {
+          ret = v;
+        } else if (_.isString(v)) {
+          ret = NaN;
+        } else if (_.isFunction(v.length)) {
+          ret = v.length();
+        } else {
+          ret = v();
+        }
+
+        return ret;
+      }
+
       struct = struct.filter(function (s) {
         return _.isPlainObject(s);
       });
 
-      _.each(struct, function (p, c) {
-        c = c.bind(self.parent);
-        len += c();
+      len = _.reduce(struct, function (p, c) {
+        let pVal, cVal;
+
+        p = _.isNumber(p) ? p : _.values(p)[0];
+        c = _.values(c)[0];
+
+        pVal = _parseVal(p);
+        cVal = _parseVal(c);
+
+        return pVal + cVal;
       });
     }
 
