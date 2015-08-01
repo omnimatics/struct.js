@@ -32,15 +32,18 @@ class CRC extends Struct {
    * Parses the buffer into structured data.
    *
    * @method parse
+   * @param {Buffer} oBuffer
+   * @param {number} pos
+   * @param {Buffer} fullBuffer
    */
-  parse(oBuffer) {
+  parse(oBuffer, pos, fullBuffer) {
     let start, end, buffer, crc, expectedCrc;
 
     start = this.start;
     end   = this.end;
 
-    buffer      = oBuffer.slice(start, end);
-    expectedCrc = oBuffer[end >= 0 ? end : oBuffer.length + end];
+    buffer      = fullBuffer.slice(start, end);
+    expectedCrc = fullBuffer[end >= 0 ? end : fullBuffer.length + end];
     expectedCrc = expectedCrc && expectedCrc.toString(16) || '00';
 
     crc = common.crc(buffer);

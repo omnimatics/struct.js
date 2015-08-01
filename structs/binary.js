@@ -35,15 +35,16 @@ class Binary extends Struct {
    * @method parse
    * @param {Buffer} buffer
    * @param {number} pos
+   * @param {Buffer} fullBuffer
    */
-  parse(buffer, pos) {
+  parse(buffer, pos, fullBuffer) {
     let totalLen, bin, ret;
 
     const struct = this.struct;
 
     pos      = pos || 0;
     totalLen = _totalLength(struct);
-    bin      = buffer.toString('hex', pos, pos + this.length());
+    bin      = buffer.toString('hex', 0, this.length());
     ret      = {};
 
     pos = 0;

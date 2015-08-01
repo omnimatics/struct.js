@@ -26,4 +26,14 @@ describe('DataType', function () {
       DataTypes.DWORD().should.equal(4);
     });
   });
+
+  describe('#STRING()', function () {
+    it('responds with the string ""', function () {
+      DataTypes.STRING().should.equal('');
+    });
+
+    it('responds with the string "attr.length" when passed the argument "attr.length"', function () {
+      DataTypes.STRING('attr.length').should.equal('attr.length');
+    });
+  });
 });

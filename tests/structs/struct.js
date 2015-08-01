@@ -8,7 +8,7 @@ const DataTypes = require('../../libs/type');
 chai.should();
 
 describe('Struct', function () {
-  let binary, crc, struct, simpleStruct, buffer, expectedParse;
+  let binary, body, crc, struct, simpleStruct, buffer, expectedParse;
 
   before(function () {
     binary = new Struct.Binary([
@@ -18,6 +18,16 @@ describe('Struct', function () {
       { length      : 10 }
     ]);
 
+    body = new Struct.Struct([
+      { province      : DataTypes.WORD },
+      { city          : DataTypes.WORD },
+      { manufacturer  : DataTypes.BYTE(5) },
+      { terminalModel : DataTypes.BYTE(8) },
+      { terminalId    : DataTypes.BYTE(7) },
+      { plateColor    : DataTypes.BYTE },
+      { plateNumber   : DataTypes.STRING('attr.length') }
+    ]);
+
     crc = new Struct.CRC(0, -1);
 
     struct = new Struct.Struct([
@@ -25,7 +35,7 @@ describe('Struct', function () {
       { attr     : binary },
       { deviceId : DataTypes.BYTE(6) },
       { serialNo : DataTypes.WORD },
-      { body     : 'attr.length' },
+      { body     : body },
       { crc      : crc }
     ]);
 
@@ -37,7 +47,7 @@ describe('Struct', function () {
       { crc      : crc }
     ]);
 
-    buffer = new Buffer('3000001981412006778000010000000000000000000000000000000000000000000000000039', 'hex');
+    buffer = new Buffer('3000001A8141200677800001000200030000000004000000000000000500000000000006070833', 'hex');
 
     expectedParse = {
         id   : '3000',
@@ -45,12 +55,20 @@ describe('Struct', function () {
           reserve     : 0,
           subpackaged : 0,
           encrypted   : 0,
-          length      : 25
+          length      : 26
         },
         deviceId : '814120067780',
         serialNo : '0001',
-        body     : '00000000000000000000000000000000000000000000000000',
-        crc      : '39'
+        body     : {
+          province      : '0002',
+          city          : '0003',
+          manufacturer  : '0000000004',
+          terminalModel : '0000000000000005',
+          terminalId    : '00000000000006',
+          plateColor    : '07',
+          plateNumber   : '08'
+        },
+        crc      : '33'
       };
   });
 
@@ -67,6 +85,18 @@ describe('Struct', function () {
   describe('#parse()', function () {
     it('generates a structured object from a serialized string', function () {
       struct.parse(buffer).should.deep.equal(expectedParse);
+    });
+  });
+
+  describe('#parsedLength()', function () {
+    it('returns length based on bytes parsed', function () {
+      struct.parsedLength().should.equal(39);
+    });
+  });
+
+  describe('#parsedObject()', function () {
+    it('returns object based on bytes parsed', function () {
+      struct.parsedObject().should.deep.equal(expectedParse);
     });
   });
 
