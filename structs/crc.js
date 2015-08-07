@@ -39,12 +39,15 @@ class CRC extends Struct {
   parse(oBuffer, pos, fullBuffer) {
     let start, end, buffer, crc, expectedCrc;
 
+    fullBuffer = fullBuffer || oBuffer;
+
     start = this.start;
     end   = this.end;
 
     buffer      = fullBuffer.slice(start, end);
     expectedCrc = fullBuffer[end >= 0 ? end : fullBuffer.length + end];
     expectedCrc = expectedCrc && expectedCrc.toString(16) || '00';
+    expectedCrc = common.pad(expectedCrc, 2);
 
     crc = common.crc(buffer);
 
@@ -52,7 +55,6 @@ class CRC extends Struct {
       throw new Error(`Invalid CRC code. Actual: 0x${crc.toString(16)}, expected: 0x${expectedCrc.toString(16)}`);
     }
 
-    // pad the number to 2 significant digits
     return crc;
   }
 
