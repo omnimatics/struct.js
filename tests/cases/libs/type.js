@@ -2,7 +2,7 @@
 
 require('chai').should();
 
-const DataTypes = require('../../index').DataTypes;
+const DataTypes = require('../../../index').DataTypes;
 
 describe('DataType', function () {
   describe('#BYTE()', function () {
@@ -29,11 +29,11 @@ describe('DataType', function () {
 
   describe('#STRING()', function () {
     it('responds with the string ""', function () {
-      DataTypes.STRING().should.equal('');
+      DataTypes.STRING()().should.equal('');
     });
 
     it('responds with the string "attr.length" when passed the argument "attr.length"', function () {
-      DataTypes.STRING('attr.length').should.equal('attr.length');
+      DataTypes.STRING('attr.length')().should.equal('attr.length');
     });
   });
 });

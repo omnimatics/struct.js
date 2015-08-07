@@ -231,13 +231,16 @@ function _typeLength(type, ref, self) {
 
     let parsedLength = self.parsedLength();
 
-    while (!ret && self) {
-      ret  = _.get(self.parsedObject(), type);
-      self = self.parent;
-    }
+    if (!ret) {
+      // no property length, look in parent
+      while (!ret && self) {
+        ret  = _.get(self.parsedObject(), type);
+        self = self.parent;
+      }
 
-    // subtract the parsed length thus far
-    ret -= parsedLength;
+      // subtract the parsed length thus far
+      ret -= parsedLength;
+    }
   }
 
   if (_.isString(ret)) {

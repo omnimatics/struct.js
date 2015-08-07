@@ -1,37 +1,24 @@
 'use strict';
 
-const chai         = require('chai');
-const BinaryStruct = require('../../structs/binary');
+const chai        = require('chai');
+const fixtures    = require('../../fixtures/common');
+const binFixtures = require('../../fixtures/structs/binary');
 
 chai.should();
 
 describe('Binary', function () {
-  let binary, byteLength, buffer, expectedParse;
+  let binary, buffer, expectedParse;
 
   before(function () {
-    binary = new BinaryStruct([
-      { reserve     : 2 },
-      { subpackaged : 1 },
-      { encrypted   : 3 },
-      { length      : 10 }
-    ]);
-
-    // 16 bits = 2 bytes;
-    byteLength = 2;
-
-    buffer = new Buffer('0019', 'hex');
-
-    expectedParse = {
-      reserve     : 0,
-      subpackaged : 0,
-      encrypted   : 0,
-      length      : 25
-    };
+    binary        = fixtures.binary;
+    buffer        = binFixtures.buffer;
+    expectedParse = binFixtures.expectedParse;
   });
 
   describe('#length()', function () {
     it('returns the byte length of the binary', function () {
-      binary.length().should.equal(byteLength);
+      // 16 bits = 2 bytes;
+      binary.length().should.equal(2);
     });
   });
 

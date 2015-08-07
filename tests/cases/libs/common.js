@@ -1,7 +1,7 @@
 'use strict';
 
 const chai   = require('chai');
-const common = require('../../libs/common');
+const common = require('../../../libs/common');
 
 chai.should();
 
