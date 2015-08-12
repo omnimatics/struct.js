@@ -25,7 +25,6 @@ describe('Common', function () {
     });
 
     it('throws an error when a plain object is not passed', function () {
-      common.objectify.should.throw('Must be plain object');
       common.objectify.bind(common, []).should.throw(Error, 'Must be plain object');
     });
   });
