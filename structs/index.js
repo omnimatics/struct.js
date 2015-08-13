@@ -176,7 +176,28 @@ class Struct {
         // pass the current hex value as well
         curr = type.serialize(obj[key], hex);
       } else {
-        curr = obj[key];
+        let len = 1;
+
+        curr = obj[key].toString();
+
+        // get the expected byte length
+        // and multiply by 2 to get hex length
+        if (_.isFunction(type)) {
+          len = type() * 2;
+        } else if (_.isNumber(type)) {
+          len = type * 2;
+        } else {
+          // TODO: figure out what to do
+          len = NaN;
+        }
+
+        if (_.isNaN(len)) {
+          // make the length even
+          len = curr.length;
+          len = len % 2 === 0 ? len : len + 1;
+        }
+
+        curr = common.pad(curr, len);
       }
 
       // if it's a buffer, convert it to hex first
