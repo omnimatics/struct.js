@@ -54,10 +54,8 @@ class Binary extends Struct {
     _.each(struct, function (s) {
       let key, len;
 
-      s = common.objectify(s);
-
-      key = s.id;
-      len = s.val;
+      key = s[0];
+      len = s[1];
 
       if (!_validLength(len)) {
         throw new Error(`Invalid length, please specify a number. Got : ${key} => ${len}`);
@@ -87,10 +85,8 @@ class Binary extends Struct {
     _.each(this.struct, function (s) {
       let key, len, val;
 
-      s = common.objectify(s);
-
-      key = s.id;
-      len = s.val;
+      key = s[0];
+      len = s[1];
       val = Number(json[key]).toString(2);
 
       bin += common.pad(val, len);
@@ -112,7 +108,7 @@ class Binary extends Struct {
  */
 function _totalLength(struct) {
   const lens = _.map(struct, function (s) {
-    return _.values(s)[0];
+    return s[1];
   });
 
   return _.reduce(lens, function (prev, curr) {

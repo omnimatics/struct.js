@@ -16,19 +16,6 @@ describe('Common', function () {
     });
   });
 
-  describe('#objectify()', function () {
-    it('breaks an object into an id-value object', function () {
-      common.objectify({ id : 'val' }).should.deep.equal({
-        id  : 'id',
-        val : 'val'
-      });
-    });
-
-    it('throws an error when a plain object is not passed', function () {
-      common.objectify.bind(common, []).should.throw(Error, 'Must be plain object');
-    });
-  });
-
   describe('#crc()', function () {
     it('calculates the check code if passed an even-digit hexadecimal', function () {
       common.crc('0202').should.equal('00');

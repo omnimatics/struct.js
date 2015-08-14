@@ -17,6 +17,7 @@ class Struct {
 
     this.parent = parent;
     this.struct = struct || [];
+
     this._parsedLength = 0;
     this._parsedObject = {};
   }
@@ -50,14 +51,14 @@ class Struct {
       }
 
       struct = struct.filter(function (s) {
-        return _.isPlainObject(s);
+        return _.isArray(s);
       });
 
       len = _.reduce(struct, function (p, c) {
         let pVal, cVal;
 
-        p = _.isNumber(p) ? p : _.values(p)[0];
-        c = _.values(c)[0];
+        p = _.isNumber(p) ? p : p[1];
+        c = c[1];
 
         pVal = _parseVal(p);
         cVal = _parseVal(c);
@@ -119,9 +120,8 @@ class Struct {
     _.each(struct, function (s) {
       let key, type, len;
 
-      s    = common.objectify(s);
-      key  = s.id;
-      type = s.val;
+      key  = s[0];
+      type = s[1];
 
       if (!_validType(type)) {
         throw new Error(`Invalid type: ${type}`);
@@ -163,10 +163,8 @@ class Struct {
     _.each(struct, function (s) {
       let curr, key, type;
 
-      s = common.objectify(s);
-
-      key  = s.id;
-      type = s.val;
+      key  = s[0];
+      type = s[1];
 
       if (!_validType(type)) {
         throw new Error(`Invalid type: ${type}`);
