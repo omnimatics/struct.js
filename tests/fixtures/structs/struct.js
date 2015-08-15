@@ -43,7 +43,7 @@ module.exports = {
 
   buffer : new Buffer('3000001A8141200677800001000200030000000004000000000000000500000000000006070833', 'hex'),
 
-  expectedParse : {
+  parse : {
     id   : '3000',
     attr : {
       reserve     : 0,
@@ -65,7 +65,7 @@ module.exports = {
     crc      : '33'
   },
 
-  simpleExpectedParse : {
+  simpleParse : {
     id   : '3000',
     attr : {
       reserve     : 0,
@@ -79,7 +79,7 @@ module.exports = {
     crc      : '33'
   },
 
-  expectedSerializable : {
+  serializable : {
     id   : '3000',
     attr : {
       reserve     : 0,
@@ -101,7 +101,7 @@ module.exports = {
     crc      : '33'
   },
 
-  simpleExpectedSerializable : {
+  simpleSerializable : {
     id   : '3000',
     attr : {
       reserve     : 0,
@@ -111,7 +111,7 @@ module.exports = {
     },
     deviceId : '814120067780',
     serialNo : '0001',
-    body     : '0002000300000000040000000000000005000000000000060708',
+    body     : new Buffer('0002000300000000040000000000000005000000000000060708', 'hex'),
     crc      : '33'
   }
 };

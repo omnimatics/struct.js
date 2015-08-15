@@ -175,8 +175,12 @@ class Struct {
         curr = type.serialize(obj[key], hex);
       } else {
         let len = 1;
+        let val = obj[key];
 
-        curr = obj[key].toString();
+        // check if val is a buffer,
+        // and get its string accordingly
+        curr = Buffer.isBuffer(val) ?
+          val.toString('hex') : val.toString();
 
         // get the expected byte length
         // and multiply by 2 to get hex length

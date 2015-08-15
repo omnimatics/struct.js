@@ -7,18 +7,18 @@ chai.should();
 
 describe('Struct', function () {
   let struct, predStruct, simpleStruct, buffer;
-  let expectedParse, simpleExpectedParse;
-  let expectedSerializable, simpleExpectedSerializable;
+  let parse, simpleParse;
+  let serializable, simpleSerializable;
 
   before(function () {
-    struct                     = structFixtures.struct;
-    predStruct                 = structFixtures.predStruct;
-    simpleStruct               = structFixtures.simpleStruct;
-    buffer                     = structFixtures.buffer;
-    expectedParse              = structFixtures.expectedParse;
-    simpleExpectedParse        = structFixtures.simpleExpectedParse;
-    expectedSerializable       = structFixtures.expectedSerializable;
-    simpleExpectedSerializable = structFixtures.simpleExpectedSerializable;
+    struct             = structFixtures.struct;
+    predStruct         = structFixtures.predStruct;
+    simpleStruct       = structFixtures.simpleStruct;
+    buffer             = structFixtures.buffer;
+    parse              = structFixtures.parse;
+    simpleParse        = structFixtures.simpleParse;
+    serializable       = structFixtures.serializable;
+    simpleSerializable = structFixtures.simpleSerializable;
   });
 
   describe('#length()', function () {
@@ -33,8 +33,8 @@ describe('Struct', function () {
 
   describe('#parse()', function () {
     it('generates a structured object from a serialized string', function () {
-      struct.parse(buffer).should.deep.equal(expectedParse);
-      simpleStruct.parse(buffer).should.deep.equal(simpleExpectedParse);
+      struct.parse(buffer).should.deep.equal(parse);
+      simpleStruct.parse(buffer).should.deep.equal(simpleParse);
     });
   });
 
@@ -46,14 +46,14 @@ describe('Struct', function () {
 
   describe('#parsedObject()', function () {
     it('returns object based on bytes parsed', function () {
-      struct.parsedObject().should.deep.equal(expectedParse);
+      struct.parsedObject().should.deep.equal(parse);
     });
   });
 
   describe('#serialize()', function () {
     it('serializes a JSON into its hex representation', function () {
-      struct.serialize(expectedSerializable).should.deep.equal(buffer);
-      simpleStruct.serialize(simpleExpectedSerializable).should.deep.equal(buffer);
+      struct.serialize(serializable).should.deep.equal(buffer);
+      simpleStruct.serialize(simpleSerializable).should.deep.equal(buffer);
     });
   });
 });

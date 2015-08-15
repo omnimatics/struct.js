@@ -7,12 +7,12 @@ const binFixtures = require('../../fixtures/structs/binary');
 chai.should();
 
 describe('Binary', function () {
-  let binary, buffer, expectedParse;
+  let binary, buffer, parse;
 
   before(function () {
-    binary        = fixtures.binary;
-    buffer        = binFixtures.buffer;
-    expectedParse = binFixtures.expectedParse;
+    binary = fixtures.binary;
+    buffer = binFixtures.buffer;
+    parse  = binFixtures.parse;
   });
 
   describe('#length()', function () {
@@ -24,7 +24,7 @@ describe('Binary', function () {
 
   describe('#parse()', function () {
     it('calculates the bit values for each binary attribute', function () {
-      binary.parse(buffer).should.deep.equal(expectedParse);
+      binary.parse(buffer).should.deep.equal(parse);
     });
   });
 
@@ -32,7 +32,7 @@ describe('Binary', function () {
     it('serializes a JSON into its binary representation', function () {
       const hex = buffer.toString('hex');
 
-      binary.serialize(expectedParse).should.equal(hex);
+      binary.serialize(parse).should.equal(hex);
     });
   });
 });
