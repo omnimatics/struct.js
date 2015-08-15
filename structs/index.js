@@ -1,7 +1,8 @@
 'use strict';
 
-const _      = require('lodash');
-const common = require('../libs/common');
+const _         = require('lodash');
+const common    = require('../libs/common');
+const ConvTypes = require('../libs/type').ConvTypes;
 
 /**
  * @class Struct
@@ -13,10 +14,22 @@ class Struct {
    * @param {Object} parent
    */
   constructor(struct, parent) {
+    struct = struct || [];
     struct = _.isArray(struct) ? struct : [ struct ];
 
+    struct = struct.map(function (s) {
+      const key = s[0];
+      const type = _.isFunction(s[1]) ? s[1]() : s[1];
+
+      if (!_.isArray(s)) {
+        throw new TypeError(`Invalid structure definition. Expected array, got ${s}`);
+      }
+
+      return [ key, type ];
+    });
+
     this.parent = parent;
-    this.struct = struct || [];
+    this.struct = struct;
 
     this._parsedLength = 0;
     this._parsedObject = {};
@@ -28,44 +41,35 @@ class Struct {
    * @method length
    */
   length() {
-    const self = this;
+    let struct = this.struct;
 
-    let struct = self.struct;
-    let len    = 0;
+    function _parseVal(v) {
+      let ret = 0;
 
-    if (_.isArray(struct)) {
-      function _parseVal(v) {
-        let ret = 0;
-
-        if (_.isNumber(v)) {
-          ret = v;
-        } else if (_.isString(v)) {
-          ret = NaN;
-        } else if (_.isFunction(v.length)) {
-          ret = v.length();
-        } else {
-          ret = _parseVal(v());
-        }
-
-        return ret;
+      if (v instanceof Struct) {
+        ret = v.length();
+      } else if (_.isPlainObject(v)) {
+        ret = _parseVal(v.length);
+      } else if (_.isNumber(v)) {
+        ret = v;
+      } else if (_.isString(v)) {
+        ret = NaN;
       }
 
-      struct = struct.filter(function (s) {
-        return _.isArray(s);
-      });
-
-      len = _.reduce(struct, function (p, c) {
-        let pVal, cVal;
-
-        p = _.isNumber(p) ? p : p[1];
-        c = c[1];
-
-        pVal = _parseVal(p);
-        cVal = _parseVal(c);
-
-        return pVal + cVal;
-      });
+      return ret;
     }
+
+    let len = _.reduce(struct, function (p, c) {
+      let pVal, cVal;
+
+      p = _.isNumber(p) ? p : p[1];
+      c = c[1];
+
+      pVal = _parseVal(p);
+      cVal = _parseVal(c);
+
+      return pVal + cVal;
+    });
 
     return len;
   }
@@ -123,6 +127,8 @@ class Struct {
       key  = s[0];
       type = s[1];
 
+      type = _.isFunction(type) ? type() : type;
+
       if (!_validType(type)) {
         throw new Error(`Invalid type: ${type}`);
       }
@@ -140,6 +146,12 @@ class Struct {
       } else {
         len      = _typeLength(type, ret, self);
         ret[key] = buffer.toString('hex', pos, pos + len);
+
+        // convert the item to its data type
+        if (_.isPlainObject(type)) {
+          const conv = ConvTypes.get(type.type);
+          ret[key] = conv ? conv(ret[key]) : ret[key];
+        }
       }
 
       pos += len;
@@ -166,11 +178,14 @@ class Struct {
       key  = s[0];
       type = s[1];
 
+      type = _.isFunction(type) ? type() : type;
+
       if (!_validType(type)) {
         throw new Error(`Invalid type: ${type}`);
       }
 
-      if (!_.isFunction(type) && _.isObject(type)) {
+      if (!_.isPlainObject(type)
+          && _.isObject(type)) {
         // pass the current hex value as well
         curr = type.serialize(obj[key], hex);
       } else {
@@ -184,10 +199,8 @@ class Struct {
 
         // get the expected byte length
         // and multiply by 2 to get hex length
-        if (_.isFunction(type)) {
-          len = type() * 2;
-        } else if (_.isNumber(type)) {
-          len = type * 2;
+        if (_.isNumber(type.length)) {
+          len = type.length * 2;
         } else {
           // TODO: figure out what to do
           len = NaN;
@@ -221,11 +234,7 @@ class Struct {
 function _validType(type) {
   let ret = true;
 
-  if (
-    !_.isObject(type)
-    && !_.isNumber(type)
-    && !_.isString(type)
-  ) {
+  if (!_.isObject(type)) {
     ret = false;
   }
 
@@ -245,9 +254,9 @@ function _validType(type) {
 function _typeLength(type, ref, self) {
   let ret;
 
-  if (_.isFunction(type) || _.isNumber(type)) {
+  if (_.isPlainObject(type)) {
     // get type length
-    ret = _.isFunction(type) ? type() : type;
+    ret = type.length;
   } else if (ref) {
     // get property length
     ret  = _.get(ref, type);

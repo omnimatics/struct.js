@@ -1,7 +1,7 @@
 'use strict';
 
 const Struct    = require('../../../index');
-const DataTypes = require('../../../libs/type');
+const DataTypes = require('../../../libs/type').DataTypes;
 const fixtures  = require('../common');
 
 const body = new Struct.Struct([
@@ -19,7 +19,7 @@ module.exports = {
     [ 'id', DataTypes.WORD ],
     [ 'attr', fixtures.binary ],
     [ 'deviceId', DataTypes.BYTE(6) ],
-    [ 'serialNo', DataTypes.WORD ],
+    [ 'serialNo', DataTypes.NUMBER(2) ],
     [ 'body', body ],
     [ 'crc', fixtures.crc ]
   ]),
@@ -52,7 +52,7 @@ module.exports = {
       length      : 26
     },
     deviceId : '814120067780',
-    serialNo : '0001',
+    serialNo : 1,
     body     : {
       province      : '0002',
       city          : '0003',
