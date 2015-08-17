@@ -83,6 +83,46 @@ describe('DataType', function () {
     });
   });
 
+  describe('#BCD()', function () {
+    it('responds with a BCD descriptor of byte length "1"', function () {
+      const format = DataTypes.BCD();
+
+      format.should.have.keys([ 'conv', 'length' ]);
+      format.conv.should.be.a('function');
+      format.conv('150505073015').should.deep.equal('2015-05-05T07:30:15+08:00');
+      format.length.should.equal(1);
+    });
+
+    it('responds with a BCD descriptor of byte length "6"', function () {
+      const format = DataTypes.BCD(6);
+
+      format.should.have.keys([ 'conv', 'length' ]);
+      format.conv.should.be.a('function');
+      format.conv('150505073015').should.deep.equal('2015-05-05T07:30:15+08:00');
+      format.length.should.equal(6);
+    });
+  });
+
+  describe('#BINARY()', function () {
+    it('responds with a binary descriptor of byte length "1"', function () {
+      const format = DataTypes.BINARY();
+
+      format.should.have.keys([ 'conv', 'length' ]);
+      format.conv.should.be.a('function');
+      format.conv('4d').should.deep.equal('01001101');
+      format.length.should.equal(1);
+    });
+
+    it('responds with a binary descriptor of byte length "6"', function () {
+      const format = DataTypes.BINARY(2);
+
+      format.should.have.keys([ 'conv', 'length' ]);
+      format.conv.should.be.a('function');
+      format.conv('00ff').should.deep.equal('0000000011111111');
+      format.length.should.equal(2);
+    });
+  });
+
   describe('#BUFFER()', function () {
     it('responds with a buffer descriptor of byte length ""', function () {
       const format = DataTypes.BUFFER();

@@ -1,5 +1,8 @@
 'use strict';
 
+const moment = require('moment');
+const common = require('./common');
+
 function BYTE(n) {
   n = Number(n) || 1;
 
@@ -48,6 +51,33 @@ function UTF8(n) {
   };
 }
 
+function BCD(n, format) {
+  n      = Number(n) || 1;
+  format = format || 'YYMMDDhhmmss';
+
+  return {
+    conv   : function BCD(val) {
+      return moment(val, format).format();
+    },
+
+    length : n
+  };
+}
+
+function BINARY(n) {
+  n = Number(n) || 1;
+
+  return {
+    conv   : function (val) {
+      val = parseInt(val, 16).toString(2);
+
+      return common.pad(val, n * 8);
+    },
+
+    length : n
+  }
+}
+
 function ARRAY(n)  {
   return {
     conv   : Array,
@@ -72,6 +102,8 @@ const DataTypes = {
   NUMBER : NUMBER,
   STRING : STRING,
   UTF8   : UTF8,
+  BCD    : BCD,
+  BINARY : BINARY,
   ARRAY  : ARRAY,
   BUFFER : BUFFER
 };
