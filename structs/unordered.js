@@ -2,102 +2,28 @@
 
 const _      = require('lodash');
 const common = require('../libs/common');
+const Struct = require('./');
 
 /**
- * @class Struct
+ * @class Unordered
+ * @extends Struct
  */
-class Struct {
+class Unordered extends Struct {
   /**
    * @constructor
-   * @param {Array} struct
-   * @param {Object} parent
+   * @param {Object} struct 
+   * @param {Object} dictionary
+   * @param {Function} map 
    */
-  constructor(struct, parent) {
-    struct = struct || [];
-    struct = _.isArray(struct) ? struct : [ struct ];
+  constructor(struct, dictionary, map) {
+    super(struct);
 
-    struct = struct.map(function (s) {
-      const key = s[0];
-      const type = _.isFunction(s[1]) ? s[1]() : s[1];
-
-      if (!_.isArray(s)) {
-        throw new TypeError(`Invalid structure definition. Expected array, got ${s}`);
-      }
-
-      return [ key, type ];
-    });
-
-    this.parent = parent;
-    this.struct = struct;
-
-    this._parsedLength = 0;
-    this._parsedObject = {};
+    this.dictionary = dictionary || {};
+    this.map        = map;
   }
 
   /**
-   * Calculates the structure length.
-   *
-   * @method length
-   */
-  length() {
-    let struct = this.struct;
-
-    function _parseVal(v) {
-      let ret = 0;
-
-      if (v instanceof Struct) {
-        ret = v.length();
-      } else if (_.isPlainObject(v)) {
-        ret = _parseVal(v.length);
-      } else if (_.isNumber(v)) {
-        ret = v;
-      } else if (_.isString(v)) {
-        ret = NaN;
-      }
-
-      return ret;
-    }
-
-    let len = _.reduce(struct, function (p, c) {
-      let pVal, cVal;
-
-      p = _.isNumber(p) ? p : p[1];
-      c = c[1];
-
-      pVal = _parseVal(p);
-      cVal = _parseVal(c);
-
-      return pVal + cVal;
-    });
-
-    return len;
-  }
-
-  /**
-   * Total buffer count parsed thus far in the
-   * current run.
-   *
-   * If struct contains a parent, will include
-   * parent's buffer count as well.
-   *
-   * @method parsedLength
-   */
-  parsedLength() {
-    return this._parsedLength;
-  }
-
-  /**
-   * Total objects parsed thus far in the
-   * current run.
-   *
-   * @method parsedObject
-   */
-  parsedObject() {
-    return this._parsedObject;
-  }
-
-  /**
-   * Parses the buffer into structured data.
+   * Parses the buffer to generate structured data.
    *
    * @method parse
    * @param {Buffer} buffer
@@ -105,57 +31,65 @@ class Struct {
    * @param {Buffer} fullBuffer
    */
   parse(buffer, pos, fullBuffer) {
-    if (!Buffer.isBuffer(buffer)) {
-      throw new Error('Argument must be a buffer');
-    }
-
     const self   = this;
     const struct = self.struct;
 
-    let ret;
+    let arrRet = [];
 
     pos = 0;
-    ret = {};
 
-    self._parsedLength = 0;
-    self._parsedObject = ret;
+    while (pos < buffer.length) {
+      const ret = {};
 
-    _.each(struct, function (s) {
-      let key, type, len;
+      _.each(struct, function (s) {
+        let key, type, len;
 
-      key  = s[0];
-      type = s[1];
+        key  = s[0];
+        type = s[1];
 
-      type = _.isFunction(type) ? type() : type;
+        type = _.isFunction(type) ? type() : type;
 
-      if (!_validType(type)) {
-        throw new Error(`Invalid type: ${type}`);
-      }
-
-      if (type instanceof Struct) {
-        type.parent = self;
-
-        len      = type.length();
-        ret[key] = type.parse(buffer.slice(pos), pos, buffer);
-
-        if (_.isNaN(len)) {
-          // use parsed length instead
-          len = _.isFunction(type.parsedLength) ? type.parsedLength() : 0;
+        if (!_validType(type)) {
+          throw new Error(`Invalid type: ${type}`);
         }
-      } else {
-        len      = _typeLength(type, ret, self);
-        ret[key] = buffer.toString('hex', pos, pos + len);
 
-        // convert the item to its data type
-        const conv = type.conv;
-        ret[key] = conv ? conv(ret[key]) : ret[key];
-      }
+        if (type instanceof Struct) {
+          type.parent = self;
 
-      pos += len;
-      self._parsedLength = pos;
-    });
+          len      = type.length();
+          ret[key] = type.parse(buffer.slice(pos), pos, buffer);
 
-    return ret;
+          if (_.isNaN(len)) {
+            // use parsed length instead
+            len = _.isFunction(type.parsedLength) ? type.parsedLength() : 0;
+          }
+        } else {
+          len      = _typeLength(type, ret, self);
+          ret[key] = buffer.toString('hex', pos, pos + len);
+
+          // convert the item to its data type
+          const conv = type.conv;
+          ret[key] = conv ? conv(ret[key]) : ret[key];
+        }
+
+        pos += len;
+        self._parsedLength = pos;
+      });
+
+      arrRet.push(ret);
+    }
+
+    if (_.isFunction(self.map)) {
+      let ret = {};
+
+      _.each(arrRet, function (value) {
+        self.map(value, self.dictionary, ret);
+      })
+
+      arrRet = ret;
+    }
+
+    return arrRet;
   }
 
   /**
@@ -163,7 +97,7 @@ class Struct {
    *
    * @method serialize
    * @param {Object} json
-  */
+   */
   serialize(json) {
     const struct = this.struct;
 
@@ -280,4 +214,4 @@ function _typeLength(type, ref, self) {
   return ret || 0;
 }
 
-module.exports = Struct;
+module.exports = Unordered;
