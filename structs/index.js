@@ -1,8 +1,7 @@
 'use strict';
 
-const _         = require('lodash');
-const common    = require('../libs/common');
-const ConvTypes = require('../libs/type').ConvTypes;
+const _      = require('lodash');
+const common = require('../libs/common');
 
 /**
  * @class Struct
@@ -148,10 +147,8 @@ class Struct {
         ret[key] = buffer.toString('hex', pos, pos + len);
 
         // convert the item to its data type
-        if (_.isPlainObject(type)) {
-          const conv = ConvTypes.get(type.type);
-          ret[key] = conv ? conv(ret[key]) : ret[key];
-        }
+        const conv = type.conv;
+        ret[key] = conv ? conv(ret[key]) : ret[key];
       }
 
       pos += len;

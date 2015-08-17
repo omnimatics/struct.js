@@ -1,7 +1,7 @@
 'use strict';
 
 const Struct    = require('../../../index');
-const DataTypes = require('../../../libs/type').DataTypes;
+const DataTypes = require('../../../libs/type');
 const fixtures  = require('../common');
 
 const body = new Struct.Struct([

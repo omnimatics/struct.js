@@ -4,7 +4,7 @@ function BYTE(n) {
   n = Number(n) || 1;
 
   return {
-    type   : String,
+    conv   : String,
     length : n
   };
 }
@@ -23,28 +23,44 @@ function NUMBER(n) {
   n = Number(n) || 1;
 
   return {
-    type   : Number,
+    conv   : function number(val) {
+      return parseInt(val, 16);
+    },
+
     length : n
   };
 }
 
 function STRING(n) {
   return {
-    type   : String,
+    conv   : String,
+    length : n || ''
+  };
+}
+
+function UTF8(n) {
+  return {
+    conv   : function utf8(val) {
+      return new Buffer(val, 'hex').toString('utf8');
+    },
+
     length : n || ''
   };
 }
 
 function ARRAY(n)  {
   return {
-    type   : Array,
+    conv   : Array,
     length : n || ''
   };
 }
 
 function BUFFER(n) {
   return {
-    type   : Buffer,
+    conv   : function buffer(val) {
+      return new Buffer(val, 'hex');
+    },
+
     length : n || ''
   };
 }
@@ -55,21 +71,9 @@ const DataTypes = {
   DWORD  : DWORD,
   NUMBER : NUMBER,
   STRING : STRING,
+  UTF8   : UTF8,
   ARRAY  : ARRAY,
   BUFFER : BUFFER
 };
 
-const ConvTypes = new WeakMap();
-
-ConvTypes.set(Number, function number(n) {
-  return parseInt(n, 16);
-});
-ConvTypes.set(String, String);
-ConvTypes.set(Buffer, function buffer(val) {
-  return new Buffer(val, 'hex');
-});
-
-module.exports = {
-  DataTypes : DataTypes,
-  ConvTypes : ConvTypes
-};
+module.exports = DataTypes;
