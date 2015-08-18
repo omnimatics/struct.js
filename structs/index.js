@@ -189,10 +189,14 @@ class Struct {
         let len = 1;
         let val = json[key];
 
-        // check if val is a buffer,
-        // and get its string accordingly
-        curr = Buffer.isBuffer(val) ?
-          val.toString('hex') : val.toString();
+        // if val is a buffer, get its hex string
+        curr = Buffer.isBuffer(val) ? val.toString('hex') : val;
+
+        if (type.serialize) {
+          // data type has it's own serialize
+          // method, use it
+          curr = type.serialize(curr);
+        }
 
         // get the expected byte length
         // and multiply by 2 to get hex length
