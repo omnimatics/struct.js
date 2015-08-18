@@ -17,7 +17,7 @@ class Struct {
     struct = _.isArray(struct) ? struct : [ struct ];
 
     struct = struct.map(function (s) {
-      const key = s[0];
+      const key  = s[0];
       const type = _.isFunction(s[1]) ? s[1]() : s[1];
 
       if (!_.isArray(s)) {
