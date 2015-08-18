@@ -7,8 +7,9 @@ function BYTE(n) {
   n = Number(n) || 1;
 
   return {
-    conv   : String,
-    length : n
+    parse     : String,
+    serialize : String,
+    length    : n
   };
 }
 
@@ -26,8 +27,12 @@ function NUMBER(n) {
   n = Number(n) || 1;
 
   return {
-    conv   : function number(val) {
+    parse : function number(val) {
       return parseInt(val, 16);
+    },
+
+    serialize : function number(val) {
+      return common.pad(val.toString(16), n * 2);
     },
 
     length : n
@@ -36,15 +41,20 @@ function NUMBER(n) {
 
 function STRING(n) {
   return {
-    conv   : String,
-    length : n || ''
+    parse     : String,
+    serialize : String,
+    length    : n || ''
   };
 }
 
 function UTF8(n) {
   return {
-    conv   : function utf8(val) {
+    parse  : function utf8(val) {
       return new Buffer(val, 'hex').toString('utf8');
+    },
+
+    serialize : function utf8(val) {
+      return common.string2hex(val);
     },
 
     length : n || ''
@@ -56,7 +66,7 @@ function BCD(n, format) {
   format = format || 'YYMMDDhhmmss';
 
   return {
-    conv   : function BCD(val) {
+    parse  : function BCD(val) {
       return moment(val, format).format();
     },
 
@@ -68,7 +78,7 @@ function BINARY(n) {
   n = Number(n) || 1;
 
   return {
-    conv   : function (val) {
+    parse  : function (val) {
       val = parseInt(val, 16).toString(2);
 
       return common.pad(val, n * 8);
@@ -80,14 +90,14 @@ function BINARY(n) {
 
 function ARRAY(n)  {
   return {
-    conv   : Array,
+    parse  : Array,
     length : n || ''
   };
 }
 
 function BUFFER(n) {
   return {
-    conv   : function buffer(val) {
+    parse  : function buffer(val) {
       return new Buffer(val, 'hex');
     },
 

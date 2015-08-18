@@ -4,8 +4,9 @@ const _ = require('lodash');
 
 /** @module libs/common */
 module.exports = {
-  pad : pad,
-  crc : crc
+  pad        : pad,
+  string2hex : string2hex,
+  crc        : crc
 };
 
 /**
@@ -20,6 +21,14 @@ function pad(s, width, z) {
   z = z || '0';
 
   return _.padLeft(s, width, z);
+}
+
+function string2hex(s) {
+  let hex = _.map(s, function (v, k, s) {
+    return s.charCodeAt(k).toString(16);
+  });
+
+  return hex.join('');
 }
 
 /**

@@ -147,8 +147,8 @@ class Struct {
         ret[key] = buffer.toString('hex', pos, pos + len);
 
         // convert the item to its data type
-        const conv = type.conv;
-        ret[key] = conv ? conv(ret[key]) : ret[key];
+        const parse = type.parse;
+        ret[key] = parse ? parse(ret[key]) : ret[key];
       }
 
       pos += len;

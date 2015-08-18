@@ -16,6 +16,12 @@ describe('Common', function () {
     });
   });
 
+  describe('#string2hex()', function () {
+    it('converts a string to its hexadecimal equivalent', function () {
+      common.string2hex('Hello world').should.equal('48656c6c6f20776f726c64');
+    });
+  });
+
   describe('#crc()', function () {
     it('calculates the check code if passed an even-digit hexadecimal', function () {
       common.crc('0202').should.equal('00');

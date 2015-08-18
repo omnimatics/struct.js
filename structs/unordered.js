@@ -19,7 +19,7 @@ class Unordered extends Struct {
     super(struct);
 
     this.dictionary = dictionary || {};
-    this.map        = map;
+    this.map        = map        || {};
   }
 
   /**
@@ -68,8 +68,8 @@ class Unordered extends Struct {
           ret[key] = buffer.toString('hex', pos, pos + len);
 
           // convert the item to its data type
-          const conv = type.conv;
-          ret[key] = conv ? conv(ret[key]) : ret[key];
+          const parse = type.parse;
+          ret[key] = parse ? parse(ret[key]) : ret[key];
         }
 
         pos += len;
@@ -79,11 +79,11 @@ class Unordered extends Struct {
       arrRet.push(ret);
     }
 
-    if (_.isFunction(self.map)) {
+    if (_.isFunction(self.map.parse)) {
       let ret = {};
 
       _.each(arrRet, function (value) {
-        self.map(value, self.dictionary, ret);
+        self.map.parse(value, self.dictionary, ret);
       })
 
       arrRet = ret;
@@ -99,58 +99,30 @@ class Unordered extends Struct {
    * @param {Object} json
    */
   serialize(json) {
-    const struct = this.struct;
+    const struct     = this.struct;
+    const dictionary = this.dictionary;
+    const map        = this.map;
 
-    let hex = '';
+    let compile = [];
 
-    _.each(struct, function (s) {
-      let curr, key, type;
+    if (_.isFunction(map.serialize)) {
+      compile = map.serialize(json, dictionary);
+    }
 
-      key  = s[0];
-      type = s[1];
+    const hex = _.map(compile, function (i) {
+      const curr = _.map(struct, function (s) {
+        let key, type;
 
-      type = _.isFunction(type) ? type() : type;
+        key  = s[0];
+        type = s[1];
 
-      if (!_validType(type)) {
-        throw new Error(`Invalid type: ${type}`);
-      }
+        return type.serialize(i[key]);
+      });
 
-      if (!_.isPlainObject(type)
-          && _.isObject(type)) {
-        // pass the current hex value as well
-        curr = type.serialize(json[key], hex);
-      } else {
-        let len = 1;
-        let val = json[key];
-
-        // check if val is a buffer,
-        // and get its string accordingly
-        curr = Buffer.isBuffer(val) ?
-          val.toString('hex') : val.toString();
-
-        // get the expected byte length
-        // and multiply by 2 to get hex length
-        if (_.isNumber(type.length)) {
-          len = type.length * 2;
-        } else {
-          // TODO: figure out what to do
-          len = NaN;
-        }
-
-        if (_.isNaN(len)) {
-          // make the length even
-          len = curr.length;
-          len = len % 2 === 0 ? len : len + 1;
-        }
-
-        curr = common.pad(curr, len);
-      }
-
-      // if it's a buffer, convert it to hex first
-      hex += Buffer.isBuffer(curr) ? curr.toString('hex') : curr;
+      return curr.join('');
     });
 
-    return new Buffer(hex, 'hex');
+    return new Buffer(hex.join(''), 'hex');
   }
 }
 

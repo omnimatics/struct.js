@@ -1,10 +1,7 @@
 'use strict';
 
-const _         = require('lodash');
-const chai      = require('chai');
-const Struct    = require('../../../index');
-const fixture   = require('../../fixtures/structs/unordered');
-const DataTypes = require('../../../libs/type');
+const chai    = require('chai');
+const fixture = require('../../fixtures/structs/unordered');
 
 chai.should();
 
@@ -12,24 +9,7 @@ describe('Unordered', function () {
   let struct, buffer, parse;
 
   before(function () {
-    struct = new Struct.Unordered([
-      [ 'id', DataTypes.WORD ],
-      [ 'length', DataTypes.NUMBER ],
-      [ 'value', DataTypes.STRING('length') ]
-    ],
-    fixture.dictionary,
-    function (value, dictionary, obj) {
-      const item = dictionary[value.id];
-
-      if (item) {
-        let type = item.type;
-
-        type = _.isFunction(type) ? type() : type;
-
-        obj[item.name] = type.conv(value.value);
-      }
-    });
-
+    struct = fixture.struct;
     buffer = fixture.buffer;
     parse  = fixture.parse;
   });
@@ -41,7 +21,7 @@ describe('Unordered', function () {
   });
 
   describe('#parse()', function () {
-    it('parses a buffer in accordance with a dictionary', function () {
+    it('parses a buffer based on a dictionary', function () {
       struct.parse(buffer).should.deep.equal(parse);
     });
   });
@@ -53,8 +33,13 @@ describe('Unordered', function () {
   });
 
   describe('#serialize()', function () {
-    it('calculates the bit values for each binary attribute', function () {
-      struct.serialize(parse).should.deep.equal(buffer);
+    it('serializes data based on a dictionary', function () {
+      //struct.serialize(parse).should.deep.equal(buffer);
+
+      let bs = struct.serialize(parse).toString('hex');
+      let bb = buffer.toString('hex');
+
+      bs.should.equal(bb);
     });
   });
 });

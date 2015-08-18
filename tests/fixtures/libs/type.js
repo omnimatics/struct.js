@@ -2,37 +2,50 @@
 
 module.exports = {
   byte : {
-    conv   : String,
-    length : 1
+    parse     : String,
+    serialize : String,
+    length    : 1
   },
 
   byte2 : {
-    conv   : String,
-    length : 2
+    parse     : String,
+    serialize : String,
+    length    : 2
   },
 
   word2 : {
-    conv   : String,
-    length : 4
+    parse     : String,
+    serialize : String,
+    length    : 4
+  },
+
+  number : {
+    keys : [ 'parse', 'serialize', 'length' ]
   },
 
   string : {
-    conv   : String,
-    length : ''
+    parse     : String,
+    serialize : String,
+    length    : ''
   },
 
   string2 : {
-    conv   : String,
-    length : 'attr.length'
+    parse     : String,
+    serialize : String,
+    length    : 'attr.length'
+  },
+
+  utf8 : {
+    keys : [ 'parse', 'serialize', 'length' ]
   },
 
   array : {
-    conv   : Array,
+    parse  : Array,
     length : ''
   },
 
   array2 : {
-    conv   : Array,
+    parse  : Array,
     length : 'attr.length'
   }
 };
