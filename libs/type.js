@@ -67,7 +67,7 @@ function UTF8(n) {
 
 function BCD(n, format) {
   n      = Number(n) || 1;
-  format = format || 'YYMMDDhhmmss';
+  format = format || 'YYMMDDHHmmss';
 
   return {
     parse  : function BCD(val) {
@@ -75,7 +75,7 @@ function BCD(n, format) {
     },
 
     serialize : function BCD(val) {
-      return moment(val).format('YYMMDDhhmmss');
+      return moment(val).format('YYMMDDHHmmss');
     },
 
     length : n
