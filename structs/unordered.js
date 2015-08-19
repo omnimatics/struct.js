@@ -19,9 +19,45 @@ class Unordered extends Struct {
   constructor(struct, dictionary, map, maxLength) {
     super(struct);
 
-    this.dictionary = dictionary || {};
-    this.map        = map        || {};
-    this.maxLength  = maxLength;
+    const self = this;
+
+    self.dictionary = dictionary || {};
+    self.map        = map        || {};
+    self.maxLength  = maxLength;
+
+    // set parent for dictionary items
+    _.each(self.dictionary, function (item) {
+      if (item instanceof Struct) {
+        item.parent = self;
+      }
+    });
+
+    // set parse and serialize defaults
+    self.map = _.merge({
+      parse : function (value, dictionary, obj) {
+        const id     = value.id;
+        const dict   = dictionary[id];
+        const buffer = new Buffer(value.value, 'hex');
+
+        obj[id] = dict.parse(buffer);
+      },
+
+      serialize : function (json, dictionary) {
+        return _.map(json, function (o, key) {
+          const item = dictionary[key];
+
+          const ret = {
+            id     : key,
+            value  : item.serialize(o)
+          };
+
+          // set the byte length
+          ret.length = ret.value.length;
+
+          return ret;
+        });
+      }
+    }, self.map);
   }
 
   /**
