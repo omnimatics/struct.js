@@ -1,5 +1,6 @@
 'use strict';
 
+const _         = require('lodash');
 const Struct    = require('../../../index');
 const DataTypes = require('../../../libs/type');
 
@@ -59,7 +60,24 @@ module.exports = {
       obj[id] = ret;
     },
 
-    serialize : function () {
+    serialize : function (json, dictionary) {
+      return _.map(json, function (o, key) {
+        const item = dictionary[key];
+
+        let ret = {
+          id     : key,
+          length : item.parsedLength(),
+          value  : item.serialize(o)
+        };
+
+        if (!ret.length) {
+          // set the byte length
+          // byte length = length / 2
+          ret.length = ret.value.length / 2;
+        }
+
+        return ret;
+      });
     }
   }),
 

@@ -109,51 +109,15 @@ class Struct {
       throw new Error('Argument must be a buffer');
     }
 
-    const self   = this;
-    const struct = self.struct;
-
     let ret;
 
     pos = 0;
     ret = {};
 
-    self._parsedLength = 0;
-    self._parsedObject = ret;
+    this._parsedLength = 0;
+    this._parsedObject = ret;
 
-    _.each(struct, function (s) {
-      let key, type, len;
-
-      key  = s[0];
-      type = s[1];
-
-      type = _.isFunction(type) ? type() : type;
-
-      if (!_validType(type)) {
-        throw new Error(`Invalid type: ${type}`);
-      }
-
-      if (type instanceof Struct) {
-        type.parent = self;
-
-        len      = type.length();
-        ret[key] = type.parse(buffer.slice(pos), pos, buffer);
-
-        if (_.isNaN(len)) {
-          // use parsed length instead
-          len = _.isFunction(type.parsedLength) ? type.parsedLength() : 0;
-        }
-      } else {
-        len      = _typeLength(type, ret, self);
-        ret[key] = buffer.toString('hex', pos, pos + len);
-
-        // convert the item to its data type
-        const parse = type.parse;
-        ret[key] = parse ? parse(ret[key]) : ret[key];
-      }
-
-      pos += len;
-      self._parsedLength = pos;
-    });
+    this._parseStruct(buffer, pos, ret);
 
     return ret;
   }
@@ -181,8 +145,10 @@ class Struct {
         throw new Error(`Invalid type: ${type}`);
       }
 
-      if (!_.isPlainObject(type)
-          && _.isObject(type)) {
+      if (
+        !_.isPlainObject(type) &&
+        _.isObject(type)
+      ) {
         // pass the current hex value as well
         curr = type.serialize(json[key], hex);
       } else {
@@ -222,24 +188,54 @@ class Struct {
 
     return new Buffer(hex, 'hex');
   }
-}
 
-/**
- * Checks if a data type is valid.
- *
- * @function _validType
- * @private
- *
- * @param {Object|number|string} type
- */
-function _validType(type) {
-  let ret = true;
+  /**
+   * Parse a single collection of structured items.
+   *
+   * @method _parseStruct
+   * @private
+   */
+  _parseStruct(buffer, pos, ret) {
+    const self   = this;
+    const struct = self.struct;
 
-  if (!_.isObject(type)) {
-    ret = false;
+    _.each(struct, function (s) {
+      let key, type, len;
+
+      key  = s[0];
+      type = s[1];
+
+      type = _.isFunction(type) ? type() : type;
+
+      if (!_validType(type)) {
+        throw new Error(`Invalid type: ${type}`);
+      }
+
+      if (type instanceof Struct) {
+        type.parent = self;
+
+        len      = type.length();
+        ret[key] = type.parse(buffer.slice(pos), pos, buffer);
+
+        if (_.isNaN(len)) {
+          // use parsed length instead
+          len = _.isFunction(type.parsedLength) ? type.parsedLength() : 0;
+        }
+      } else {
+        len      = _typeLength(type, ret, self);
+        ret[key] = buffer.toString('hex', pos, pos + len);
+
+        // convert the item to its data type
+        const parse = type.parse;
+        ret[key] = parse ? parse(ret[key]) : ret[key];
+      }
+
+      pos += len;
+      self._parsedLength = pos;
+    });
+
+    return pos;
   }
-
-  return ret;
 }
 
 /**
@@ -282,6 +278,24 @@ function _typeLength(type, ref, self) {
   }
 
   return ret || 0;
+}
+
+/**
+ * Checks if a data type is valid.
+ *
+ * @function _validType
+ * @private
+ *
+ * @param {Object|number|string} type
+ */
+function _validType(type) {
+  let ret = true;
+
+  if (!_.isObject(type)) {
+    ret = false;
+  }
+
+  return ret;
 }
 
 module.exports = Struct;

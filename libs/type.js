@@ -105,7 +105,7 @@ function BUFFER(n) {
   };
 }
 
-const DataTypes = { 
+const DataTypes = {
   BYTE   : BYTE,
   WORD   : WORD,
   DWORD  : DWORD,

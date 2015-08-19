@@ -40,41 +40,7 @@ class Unordered extends Struct {
 
     while (pos < buffer.length) {
       const ret = {};
-
-      _.each(struct, function (s) {
-        let key, type, len;
-
-        key  = s[0];
-        type = s[1];
-
-        type = _.isFunction(type) ? type() : type;
-
-        if (!_validType(type)) {
-          throw new Error(`Invalid type: ${type}`);
-        }
-
-        if (type instanceof Struct) {
-          type.parent = self;
-
-          len      = type.length();
-          ret[key] = type.parse(buffer.slice(pos), pos, buffer);
-
-          if (_.isNaN(len)) {
-            // use parsed length instead
-            len = _.isFunction(type.parsedLength) ? type.parsedLength() : 0;
-          }
-        } else {
-          len      = _typeLength(type, ret, self);
-          ret[key] = buffer.toString('hex', pos, pos + len);
-
-          // convert the item to its data type
-          const parse = type.parse;
-          ret[key] = parse ? parse(ret[key]) : ret[key];
-        }
-
-        pos += len;
-        self._parsedLength = pos;
-      });
+      pos = this._parseStruct(buffer, pos, ret);
 
       arrRet.push(ret);
     }
@@ -111,12 +77,19 @@ class Unordered extends Struct {
 
     const hex = _.map(compile, function (i) {
       const curr = _.map(struct, function (s) {
-        let key, type;
+        let ret, key, type;
 
         key  = s[0];
         type = s[1];
 
-        return type.serialize(i[key]);
+        type = _.isFunction(type) ? type() : type;
+        ret  = type.serialize(i[key]);
+
+        if (Buffer.isBuffer(ret)) {
+          ret = ret.toString('hex');
+        }
+
+        return ret;
       });
 
       return curr.join('');
@@ -124,66 +97,6 @@ class Unordered extends Struct {
 
     return new Buffer(hex.join(''), 'hex');
   }
-}
-
-/**
- * Checks if a data type is valid.
- *
- * @function _validType
- * @private
- *
- * @param {Object|number|string} type
- */
-function _validType(type) {
-  let ret = true;
-
-  if (!_.isObject(type)) {
-    ret = false;
-  }
-
-  return ret;
-}
-
-/**
- * Calculate length by data type or property.
- *
- * @function _typeLength
- * @private
- *
- * @param {Function|number|string} type
- * @param {Object} ref
- * @param {Object} self
- */
-function _typeLength(type, ref, self) {
-  let ret;
-
-  if (_.isPlainObject(type)) {
-    // get type length
-    ret = type.length;
-  } else if (ref) {
-    // get property length
-    ret  = _.get(ref, type);
-
-    let parsedLength = self.parsedLength();
-
-    if (!ret) {
-      // no property length, look in parent
-      while (!ret && self) {
-        ret  = _.get(self.parsedObject(), type);
-        self = self.parent;
-      }
-
-      // subtract the parsed length thus far
-      ret -= parsedLength;
-    }
-  }
-
-  if (_.isString(ret)) {
-    // may depend on parent attribute
-    ret = _typeLength(ret, ref, self);
-  }
-
-  return ret || 0;
 }
 
 module.exports = Unordered;

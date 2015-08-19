@@ -1,7 +1,6 @@
 'use strict';
 
 const _      = require('lodash');
-const common = require('../libs/common');
 const Struct = require('./');
 
 /**
@@ -19,6 +18,14 @@ class Array extends Struct {
     this.maxLen = maxLen;
   }
 
+  /**
+   * Parses the buffer into structured data.
+   *
+   * @method parse
+   * @param {Buffer} buffer
+   * @param {number} pos
+   * @param {Buffer} fullBuffer
+   */
   parse(buffer, pos, fullBuffer) {
     const self   = this;
     const struct = self.struct;
@@ -38,85 +45,47 @@ class Array extends Struct {
       const ret = {};
 
       self._parsedObject = ret;
-
-      _.each(struct, function (s) {
-        let key, type, len;
-
-        key  = s[0];
-        type = s[1];
-
-        type = _.isFunction(type) ? type() : type;
-
-        if (type instanceof Struct) {
-          type.parent = self;
-
-          len      = type.length();
-          ret[key] = type.parse(buffer.slice(pos), pos, buffer);
-
-          if (_.isNaN(len)) {
-            // use parsed length instead
-            len = _.isFunction(type.parsedLength) ? type.parsedLength() : 0;
-          }
-        } else {
-          len      = _typeLength(type, ret, self);
-          ret[key] = buffer.toString('hex', pos, pos + len);
-
-          // convert the item to its data type
-          const parse = type.parse;
-          ret[key] = parse ? parse(ret[key]) : ret[key];
-        }
-
-        pos += len;
-        self._parsedLength = pos;
-      });
+      pos = self._parseStruct(buffer, pos, ret);
 
       arrRet.push(ret);
     }
 
     return arrRet;
   }
-}
 
-/**
- * Calculate length by data type or property.
- *
- * @function _typeLength
- * @private
- *
- * @param {Function|number|string} type
- * @param {Object} ref
- * @param {Object} self
- */
-function _typeLength(type, ref, self) {
-  let ret;
+  /**
+   * Converts structured data into raw data.
+   *
+   * @method serialize
+   * @param {Object} json
+  */
+  serialize(json) {
+    const struct = this.struct;
 
-  if (_.isPlainObject(type)) {
-    // get type length
-    ret = type.length;
-  } else if (ref) {
-    // get property length
-    ret  = _.get(ref, type);
+    json = _.isArray(json) ? json : [ json ];
 
-    let parsedLength = self.parsedLength();
+    const hex = _.map(json, function (o) {
+      const curr = _.map(struct, function (s) {
+        let ret, key, type;
 
-    if (!ret) {
-      // no property length, look in parent
-      while (!ret && self) {
-        ret  = _.get(self.parsedObject(), type);
-        self = self.parent;
-      }
+        key  = s[0];
+        type = s[1];
 
-      // subtract the parsed length thus far
-      ret -= parsedLength;
-    }
+        type = _.isFunction(type) ? type() : type;
+        ret  = type.serialize(o[key]);
+
+        if (Buffer.isBuffer(ret)) {
+          ret = ret.toString('hex');
+        }
+
+        return ret;
+      });
+
+      return curr.join('');
+    });
+
+    return new Buffer(hex.join(''), 'hex');
   }
-
-  if (_.isString(ret)) {
-    // may depend on parent attribute
-    ret = _typeLength(ret, ref, self);
-  }
-
-  return ret || 0;
 }
 
 module.exports = Array;
