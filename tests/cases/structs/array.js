@@ -36,7 +36,7 @@ describe('Array', function () {
   describe('#parsedLength()', function () {
     it('returns length based on bytes parsed', function () {
       s1.parsedLength().should.equal(12);
-      s2.parsedLength().should.equal(361);
+      s2.parsedLength().should.equal(384);
     });
   });
 

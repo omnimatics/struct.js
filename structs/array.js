@@ -11,11 +11,12 @@ class Array extends Struct {
   /**
    * @constructor
    * @param {Array} struct
+   * @param {number|string} maxLength
    */
-  constructor(struct, maxLen) {
+  constructor(struct, maxLength) {
     super(struct);
 
-    this.maxLen = maxLen;
+    this.maxLength = maxLength;
   }
 
   /**
@@ -33,24 +34,24 @@ class Array extends Struct {
 
     pos = 0;
 
-    let maxLen = buffer.length;
+    let maxLength = buffer.length;
 
-    if (self.maxLen) {
-      if (_.isString(self.maxLen) && self.parent) {
-        let p;
+    if (self.maxLength) {
+      if (_.isString(self.maxLength) && self.parent) {
+        let p = self;
 
         do {
-          p      = self.parent;
-          maxLen = p._parsedObject[self.maxLen];
-        } while (!maxLen && self.parent);
+          p         = p.parent;
+          maxLength = _.get(p._parsedObject, self.maxLength);
+        } while (!maxLength && p.parent);
       } else {
-        maxLen = self.maxLen;
+        maxLength = self.maxLength;
       }
     }
 
     self._parsedLength = 0;
 
-    while (pos < maxLen) {
+    while (pos < maxLength) {
       const ret = {};
 
       self._parsedObject = ret;

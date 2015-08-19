@@ -74,6 +74,10 @@ function BCD(n, format) {
       return moment(val, format).format();
     },
 
+    serialize : function BCD(val) {
+      return moment(val).format('YYMMDDhhmmss');
+    },
+
     length : n
   };
 }
@@ -86,6 +90,12 @@ function BINARY(n) {
       val = parseInt(val, 16).toString(2);
 
       return common.pad(val, n * 8);
+    },
+
+    serialize : function (val) {
+      val = parseInt(val, 2).toString(16);
+
+      return common.pad(val, n);
     },
 
     length : n

@@ -44,7 +44,7 @@ describe('DataType', function () {
     it('responds with a number descriptor of byte length 2', function () {
       const format = DataTypes.NUMBER(2);
 
-      format.should.have.keys(fixture.number.keys);
+      format.should.have.keys(fixture.keys);
 
       format.parse.should.be.a('function');
       format.parse('02').should.equal(2);
@@ -60,7 +60,7 @@ describe('DataType', function () {
     it('responds with a string descriptor of byte length ""', function () {
       const format = DataTypes.STRING();
 
-      format.should.have.keys(fixture.string.keys);
+      format.should.have.keys(fixture.keys);
 
       format.parse.should.be.a('function');
       format.parse(19).should.equal('19');
@@ -74,7 +74,7 @@ describe('DataType', function () {
     it('responds with a string descriptor of byte length "attr.length" when passed the argument "attr.length"', function () {
       const format = DataTypes.STRING('attr.length');
 
-      format.should.have.keys(fixture.string.keys);
+      format.should.have.keys(fixture.keys);
 
       format.parse.should.be.a('function');
       format.parse(19).should.equal('19');
@@ -100,7 +100,7 @@ describe('DataType', function () {
     it('responds with a utf8 descriptor of byte length ""', function () {
       const format = DataTypes.UTF8();
 
-      format.should.have.keys(fixture.utf8.keys);
+      format.should.have.keys(fixture.keys);
 
       format.parse.should.be.a('function');
       format.parse('4d4d').should.deep.equal('MM');
@@ -114,7 +114,7 @@ describe('DataType', function () {
     it('responds with a utf8 descriptor of byte length "attr.length"', function () {
       const format = DataTypes.UTF8('attr.length');
 
-      format.should.have.keys(fixture.utf8.keys);
+      format.should.have.keys(fixture.keys);
 
       format.parse.should.be.a('function');
       format.parse('4d4d36').should.deep.equal('MM6');
@@ -130,7 +130,7 @@ describe('DataType', function () {
     it('responds with a BCD descriptor of byte length "1"', function () {
       const format = DataTypes.BCD();
 
-      format.should.have.keys([ 'parse', 'length' ]);
+      format.should.have.keys(fixture.keys);
       format.parse.should.be.a('function');
       format.parse('150505073015').should.deep.equal('2015-05-05T07:30:15+08:00');
       format.length.should.equal(1);
@@ -139,7 +139,7 @@ describe('DataType', function () {
     it('responds with a BCD descriptor of byte length "6"', function () {
       const format = DataTypes.BCD(6);
 
-      format.should.have.keys([ 'parse', 'length' ]);
+      format.should.have.keys(fixture.keys);
       format.parse.should.be.a('function');
       format.parse('150505073015').should.deep.equal('2015-05-05T07:30:15+08:00');
       format.length.should.equal(6);
@@ -150,7 +150,7 @@ describe('DataType', function () {
     it('responds with a binary descriptor of byte length "1"', function () {
       const format = DataTypes.BINARY();
 
-      format.should.have.keys([ 'parse', 'length' ]);
+      format.should.have.keys(fixture.keys);
       format.parse.should.be.a('function');
       format.parse('4d').should.deep.equal('01001101');
       format.length.should.equal(1);
@@ -159,7 +159,7 @@ describe('DataType', function () {
     it('responds with a binary descriptor of byte length "6"', function () {
       const format = DataTypes.BINARY(2);
 
-      format.should.have.keys([ 'parse', 'length' ]);
+      format.should.have.keys(fixture.keys);
       format.parse.should.be.a('function');
       format.parse('00ff').should.deep.equal('0000000011111111');
       format.length.should.equal(2);

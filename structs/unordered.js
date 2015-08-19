@@ -14,12 +14,14 @@ class Unordered extends Struct {
    * @param {Object} struct 
    * @param {Object} dictionary
    * @param {Function} map 
+   * @param {number|string} maxLength
    */
-  constructor(struct, dictionary, map) {
+  constructor(struct, dictionary, map, maxLength) {
     super(struct);
 
     this.dictionary = dictionary || {};
     this.map        = map        || {};
+    this.maxLength  = maxLength;
   }
 
   /**
@@ -38,7 +40,22 @@ class Unordered extends Struct {
 
     pos = 0;
 
-    while (pos < buffer.length) {
+    let maxLength = buffer.length;
+
+    if (self.maxLength) {
+      if (_.isString(self.maxLength) && self.parent) {
+        let p = self;
+
+        do {
+          p         = p.parent;
+          maxLength = _.get(p._parsedObject, self.maxLength);
+        } while (!maxLength && p.parent);
+      } else {
+        maxLength = self.maxLength;
+      }
+    }
+
+    while (pos < maxLength) {
       const ret = {};
       pos = this._parseStruct(buffer, pos, ret);
 

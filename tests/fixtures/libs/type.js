@@ -1,6 +1,8 @@
 'use strict';
 
 module.exports = {
+  keys : [ 'parse', 'serialize', 'length' ],
+
   byte : {
     parse     : String,
     serialize : String,
@@ -17,18 +19,6 @@ module.exports = {
     parse     : String,
     serialize : String,
     length    : 4
-  },
-
-  number : {
-    keys : [ 'parse', 'serialize', 'length' ]
-  },
-
-  string : {
-    keys  : [ 'parse', 'serialize', 'length' ]
-  },
-
-  utf8 : {
-    keys : [ 'parse', 'serialize', 'length' ]
   },
 
   array : {

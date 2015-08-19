@@ -10,9 +10,9 @@ class Struct {
   /**
    * @constructor
    * @param {Array} struct
-   * @param {Object} parent
+   * @param {number|string} maxLength
    */
-  constructor(struct, parent) {
+  constructor(struct, maxLength) {
     struct = struct || [];
     struct = _.isArray(struct) ? struct : [ struct ];
 
@@ -27,8 +27,8 @@ class Struct {
       return [ key, type ];
     });
 
-    this.parent = parent;
-    this.struct = struct;
+    this.struct    = struct;
+    this.maxLength = maxLength;
 
     this._parsedLength = 0;
     this._parsedObject = {};
@@ -109,15 +109,28 @@ class Struct {
       throw new Error('Argument must be a buffer');
     }
 
-    let ret;
+    let ret, maxLength;
 
     pos = 0;
     ret = {};
 
+    if (this.maxLength) {
+      if (_.isString(this.maxLength) && this.parent) {
+        let p = this;
+
+        do {
+          p         = p.parent;
+          maxLength = _.get(p._parsedObject, this.maxLength);
+        } while (!maxLength && p.parent);
+      } else {
+        maxLength = this.maxLength;
+      }
+    }
+
     this._parsedLength = 0;
     this._parsedObject = ret;
 
-    this._parseStruct(buffer, pos, ret);
+    this._parseStruct(buffer.slice(0, maxLength), pos, ret);
 
     return ret;
   }
