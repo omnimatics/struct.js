@@ -42,7 +42,11 @@ function NUMBER(n) {
 function STRING(n) {
   return {
     parse     : String,
-    serialize : String,
+    serialize : function (val) {
+      val = Buffer.isBuffer(val) ? val.toString('hex') : val.toString();
+
+      return val;
+    },
     length    : n || ''
   };
 }

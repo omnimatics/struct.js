@@ -25,9 +25,7 @@ describe('CRC', function () {
 
   describe('#parse()', function () {
     it('the check code equals the last entry in the buffer', function () {
-      const p = crc.parse(buffer);
-
-      p.should.equal(checkCode);
+      crc.parse(buffer).should.equal(checkCode);
     });
   });
 

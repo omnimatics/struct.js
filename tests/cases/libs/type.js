@@ -60,7 +60,7 @@ describe('DataType', function () {
     it('responds with a string descriptor of byte length ""', function () {
       const format = DataTypes.STRING();
 
-      format.should.deep.equal(fixture.string);
+      format.should.have.keys(fixture.string.keys);
 
       format.parse.should.be.a('function');
       format.parse(19).should.equal('19');
@@ -74,7 +74,7 @@ describe('DataType', function () {
     it('responds with a string descriptor of byte length "attr.length" when passed the argument "attr.length"', function () {
       const format = DataTypes.STRING('attr.length');
 
-      format.should.deep.equal(fixture.string2);
+      format.should.have.keys(fixture.string.keys);
 
       format.parse.should.be.a('function');
       format.parse(19).should.equal('19');

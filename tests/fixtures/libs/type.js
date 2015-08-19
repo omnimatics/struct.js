@@ -24,15 +24,7 @@ module.exports = {
   },
 
   string : {
-    parse     : String,
-    serialize : String,
-    length    : ''
-  },
-
-  string2 : {
-    parse     : String,
-    serialize : String,
-    length    : 'attr.length'
+    keys  : [ 'parse', 'serialize', 'length' ]
   },
 
   utf8 : {
