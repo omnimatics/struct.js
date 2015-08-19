@@ -36,7 +36,16 @@ class Array extends Struct {
     let maxLen = buffer.length;
 
     if (self.maxLen) {
-      maxLen = self.maxLen;
+      if (_.isString(self.maxLen) && self.parent) {
+        let p;
+
+        do {
+          p      = self.parent;
+          maxLen = p._parsedObject[self.maxLen];
+        } while (!maxLen && self.parent);
+      } else {
+        maxLen = self.maxLen;
+      }
     }
 
     self._parsedLength = 0;

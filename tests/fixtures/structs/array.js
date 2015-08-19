@@ -5,7 +5,46 @@ const Struct    = require('../../../index');
 const DataTypes = require('../../../libs/type');
 
 module.exports = {
-  struct : new Struct.Unordered([
+  s1 : new Struct.Array([
+    [ 'length', DataTypes.NUMBER ],
+
+    [
+      'body', new Struct.Array([
+        [ 'id', DataTypes.BYTE ],
+        [ 'length', DataTypes.NUMBER ],
+        [ 'content', DataTypes.STRING('length') ]
+      ])
+    ]
+  ]),
+
+  p1 : [
+    {
+      length : 11,
+      body : [
+        {
+          id      : 'ff',
+          length  : 2,
+          content : '0509'
+        },
+
+        {
+          id      : '0c',
+          length  : 2,
+          content : '2192'
+        },
+
+        {
+          id      : '0d',
+          length  : 1,
+          content : '30'
+        }
+      ]
+    }
+  ],
+
+  b1 : new Buffer('0bff0205090c0221920d0130', 'hex'),
+
+  s2 : new Struct.Unordered([
     [ 'id', DataTypes.BYTE ],
     [ 'length', DataTypes.NUMBER(2) ],
     [ 'value', DataTypes.STRING('length') ]
@@ -23,7 +62,7 @@ module.exports = {
               [ 'id', DataTypes.BYTE ],
               [ 'length', DataTypes.NUMBER ],
               [ 'content', DataTypes.STRING('length') ]
-            ], 11)
+            ], 'length')
           ]
         ])
       ]
@@ -45,9 +84,21 @@ module.exports = {
     ]),
 
     'a3' : new Struct.Struct([
+      [ 'quantity', DataTypes.BYTE ],
+      [
+        'dtcs', new Struct.Array([
+          [ 'dtc', DataTypes.BYTE(3) ]
+        ], 'quantity')
+      ]
     ]),
 
     'a4' : new Struct.Struct([
+      [ 'quantity', DataTypes.BYTE ],
+      [
+        'alarms', new Struct.Array([
+          [ 'alarm', DataTypes.BYTE(4) ]
+        ], 'quantity')
+      ]
     ])
   }, {
     parse : function (value, dictionary, obj) {
@@ -66,22 +117,18 @@ module.exports = {
 
         let ret = {
           id     : key,
-          length : item.parsedLength(),
           value  : item.serialize(o)
         };
 
-        if (!ret.length) {
-          // set the byte length
-          // byte length = length / 2
-          ret.length = ret.value.length / 2;
-        }
+        // set the byte length
+        ret.length = ret.value.length;
 
         return ret;
       });
     }
   }),
 
-  parse : {
+  p2 : {
     a0 : {
       tripId     : '15070013',
       delay      : '01',
@@ -323,5 +370,5 @@ module.exports = {
     }
   },
 
-  buffer : new Buffer('a0014a15070013011b0bff0205090c0221920d01300bff0204d40c0221920d01300bff0204d40c0221920d01300bff0200860c020d400d012a0bff02008f0c020d400d01270bff02008e0c020a460d01200bff0200ad0c020a460d01180bff0201240c0208c10d010d0bff0201940c0208c10d01070bff02045b0c020a290d01030bff02004e0c020a290d01000bff0200550c020a660d01000bff0200550c020a660d01000bff0200550c020a660d01000bff0200450c020a950d01000bff0200450c020a950d01000bff0200420c0209d80d01000bff02003f0c0209840d01000bff02003f0c0209840d01000bff02003f0c0209840d01000bff0200390c020a510d01000bff0200390c020a510d01000bff02003b0c020a5b0d01000bff02003b0c020a5b0d01000bff02003a0c020a530d01000bff02003a0c020a530d01000bff02003a0c020a530d0100a1000e002fdab9060f69a4000000010000a20008000502165605331a', 'hex')
+  b2 : new Buffer('a0014a15070013011b0bff0205090c0221920d01300bff0204d40c0221920d01300bff0204d40c0221920d01300bff0200860c020d400d012a0bff02008f0c020d400d01270bff02008e0c020a460d01200bff0200ad0c020a460d01180bff0201240c0208c10d010d0bff0201940c0208c10d01070bff02045b0c020a290d01030bff02004e0c020a290d01000bff0200550c020a660d01000bff0200550c020a660d01000bff0200550c020a660d01000bff0200450c020a950d01000bff0200450c020a950d01000bff0200420c0209d80d01000bff02003f0c0209840d01000bff02003f0c0209840d01000bff02003f0c0209840d01000bff0200390c020a510d01000bff0200390c020a510d01000bff02003b0c020a5b0d01000bff02003b0c020a5b0d01000bff02003a0c020a530d01000bff02003a0c020a530d01000bff02003a0c020a530d0100a1000e002fdab9060f69a4000000010000a20008000502165605331a', 'hex')
 };

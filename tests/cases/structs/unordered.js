@@ -35,11 +35,6 @@ describe('Unordered', function () {
   describe('#serialize()', function () {
     it('serializes data based on a dictionary', function () {
       struct.serialize(parse).should.deep.equal(buffer);
-
-      let bs = struct.serialize(parse).toString('hex');
-      let bb = buffer.toString('hex');
-
-      bs.should.equal(bb);
     });
   });
 });
