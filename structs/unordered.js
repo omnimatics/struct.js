@@ -36,19 +36,18 @@ class Unordered extends Struct {
     self.map = _.merge({
       parse : function (value, dictionary, obj) {
         const id     = value.id;
-        const dict   = dictionary[id];
         const buffer = new Buffer(value.value, 'hex');
+        const dict   = dictionary[id];
 
         obj[id] = dict.parse(buffer);
       },
 
       serialize : function (json, dictionary) {
         return _.map(json, function (o, key) {
-          const item = dictionary[key];
-
-          const ret = {
+          const dict = dictionary[key];
+          const ret  = {
             id     : key,
-            value  : item.serialize(o)
+            value  : dict.serialize(o)
           };
 
           // set the byte length
@@ -102,7 +101,7 @@ class Unordered extends Struct {
       let ret = {};
 
       _.each(arrRet, function (value) {
-        self.map.parse(value, self.dictionary, ret);
+        self.map.parse.call(this, value, self.dictionary, ret);
       })
 
       arrRet = ret;

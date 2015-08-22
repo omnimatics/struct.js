@@ -118,32 +118,6 @@ module.exports = {
                 ], 'quantity')
               ]
             ])
-          }, {
-            parse : function (value, dictionary, obj) {
-              const id     = value.id;
-              const dict   = dictionary[id];
-              const buffer = new Buffer(value.value, 'hex');
-
-              let ret = dict.parse(buffer);
-
-              obj[id] = ret;
-            },
-
-            serialize : function (json, dictionary) {
-              return _.map(json, function (o, key) {
-                const item = dictionary[key];
-
-                let ret = {
-                  id     : key,
-                  value  : item.serialize(o)
-                };
-
-                // set the byte length
-                ret.length = ret.value.length;
-
-                return ret;
-              });
-            }
           }),
         ]
       ], 'attr.length')

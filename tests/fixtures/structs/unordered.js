@@ -115,14 +115,15 @@ module.exports = {
   dictionary,
   {
     parse : function (value, dictionary, obj) {
-      const item = dictionary[value.id];
+      const id   = value.id;
+      const dict = dictionary[id];
 
-      if (item) {
-        let type = item.type;
+      if (dict) {
+        let type = dict.type;
 
         type = _.isFunction(type) ? type() : type;
 
-        obj[item.name] = type.parse(value.value);
+        obj[dict.name] = type.parse(value.value);
       }
     },
 
