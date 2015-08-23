@@ -12,11 +12,13 @@ class Array extends Struct {
    * @constructor
    * @param {Array} struct
    * @param {number|string} maxLength
+   * @param {number|string} multiplier
    */
-  constructor(struct, maxLength) {
+  constructor(struct, maxLength, multiplier) {
     super(struct);
 
-    this.maxLength = maxLength;
+    this.maxLength  = maxLength;
+    this.multiplier = Number(multiplier) || 1;
   }
 
   /**
@@ -48,6 +50,9 @@ class Array extends Struct {
         maxLength = self.maxLength;
       }
     }
+
+    // apply multiplier
+    maxLength *= self.multiplier;
 
     self._parsedLength = 0;
 
