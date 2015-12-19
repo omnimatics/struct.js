@@ -1,135 +1,103 @@
-'use strict';
+'use strict'
 
-const moment = require('moment');
-const common = require('./common');
+const moment = require('moment')
+const common = require('./common')
 
-function BYTE(n) {
-  n = Number(n) || 1;
-
+function BYTE(length) {
   return {
-    parse     : String,
-    serialize : String,
-    length    : n
-  };
-}
-
-function WORD(n) {
-  n = Number(n) || 1;
-
-  return BYTE(n * 2);
-}
-
-function DWORD() {
-  return WORD(2);
-}
-
-function NUMBER(n) {
-  n = Number(n) || 1;
-
-  return {
-    parse : function number(val) {
-      return parseInt(val, 16);
-    },
-
-    serialize : function number(val) {
-      return common.pad(val.toString(16), n * 2);
-    },
-
-    length : n
-  };
-}
-
-function STRING(n) {
-  return {
-    parse     : String,
-    serialize : function (val) {
-      val = Buffer.isBuffer(val) ? val.toString('hex') : val.toString();
-
-      return val;
-    },
-    length    : n || ''
-  };
-}
-
-function UTF8(n) {
-  return {
-    parse  : function utf8(val) {
-      return new Buffer(val, 'hex').toString('utf8');
-    },
-
-    serialize : function utf8(val) {
-      return common.string2hex(val);
-    },
-
-    length : n || ''
-  };
-}
-
-function BCD(n, format) {
-  n      = Number(n) || 1;
-  format = format || 'YYMMDDHHmmss';
-
-  return {
-    parse  : function BCD(val) {
-      return moment(val, format).format();
-    },
-
-    serialize : function BCD(val) {
-      return moment(val).format('YYMMDDHHmmss');
-    },
-
-    length : n
-  };
-}
-
-function BINARY(n) {
-  n = Number(n) || 1;
-
-  return {
-    parse  : function (val) {
-      val = parseInt(val, 16).toString(2);
-
-      return common.pad(val, n * 8);
-    },
-
-    serialize : function (val) {
-      val = parseInt(val, 2).toString(16);
-
-      return common.pad(val, n);
-    },
-
-    length : n
+    parse: String,
+    serialize: String,
+    length: Number(length) || 1
   }
 }
 
-function ARRAY(n)  {
-  return {
-    parse  : Array,
-    length : n || ''
-  };
+function WORD(n) {
+  n = Number(n) || 1
+
+  return BYTE(n * 2)
 }
 
-function BUFFER(n) {
+function DWORD() {
+  return WORD(2)
+}
+
+function NUMBER(length) {
+  length = Number(length) || 1
+
   return {
-    parse  : function buffer(val) {
-      return new Buffer(val, 'hex');
+    parse: (val) => parseInt(val, 16),
+    serialize: (val) => common.pad(val.toString(16), length * 2),
+    length
+  }
+}
+
+function STRING(length) {
+  return {
+    parse: String,
+    serialize: (val) => {
+      const type = Buffer.isBuffer(val) ? 'hex' : undefined
+      return val.toString(type)
+    },
+    length: length || ''
+  }
+}
+
+function UTF8(length) {
+  return {
+    parse: (val) => new Buffer(val, 'hex').toString('utf8'),
+    serialize: (val) => common.string2hex(val),
+    length: length || ''
+  }
+}
+
+function BCD(length, format) {
+  length = Number(length) || 1
+  format = format || 'YYMMDDHHmmss'
+
+  return {
+    parse: (val) => moment(val, format).format(),
+    serialize: (val) => moment(val).format('YYMMDDHHmmss'),
+    length
+  }
+}
+
+function BINARY(length) {
+  length = Number(length) || 1
+
+  return {
+    parse: (val) => {
+      val = parseInt(val, 16).toString(2)
+      return common.pad(val, length * 8)
     },
 
-    length : n || ''
-  };
+    serialize: (val) => {
+      val = parseInt(val, 2).toString(16)
+      return common.pad(val, length)
+    },
+
+    length
+  }
+}
+
+function ARRAY(length)  {
+  return {
+    parse: Array,
+    length: length || ''
+  }
+}
+
+function BUFFER(length) {
+  return {
+    parse: (val) => new Buffer(val, 'hex'),
+    length: length || ''
+  }
 }
 
 const DataTypes = {
-  BYTE   : BYTE,
-  WORD   : WORD,
-  DWORD  : DWORD,
-  NUMBER : NUMBER,
-  STRING : STRING,
-  UTF8   : UTF8,
-  BCD    : BCD,
-  BINARY : BINARY,
-  ARRAY  : ARRAY,
-  BUFFER : BUFFER
-};
+  BYTE, WORD, DWORD,
+  NUMBER, STRING, UTF8,
+  BCD, BINARY, ARRAY,
+  BUFFER
+}
 
-module.exports = DataTypes;
+module.exports = DataTypes

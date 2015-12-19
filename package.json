@@ -1,6 +1,6 @@
 {
   "name": "struct.js",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Pack/Unpack multibyte binary values from/to buffers",
   "main": "index.js",
   "dependencies": {

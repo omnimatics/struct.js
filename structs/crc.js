@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const _      = require('lodash');
-const common = require('../libs/common');
-const Struct = require('./');
+const _ = require('lodash')
+const common = require('../libs/common')
+const Struct = require('./')
 
 /**
  * @class CRC
@@ -13,10 +13,10 @@ class CRC extends Struct {
    * @constructor
    */
   constructor(start, end) {
-    super();
+    super()
 
-    this.start = Number(start);
-    this.end   = Number(end);
+    this.start = Number(start)
+    this.end = Number(end)
   }
 
   /**
@@ -25,7 +25,7 @@ class CRC extends Struct {
    * @method length
    */
   length() {
-    return 1;
+    return 1
   }
 
   /**
@@ -37,25 +37,25 @@ class CRC extends Struct {
    * @param {Buffer} fullBuffer
    */
   parse(oBuffer, pos, fullBuffer) {
-    let start, end, buffer, crc, expectedCrc;
+    let start, end, buffer, crc, expectedCrc
 
-    fullBuffer = fullBuffer || oBuffer;
+    fullBuffer = fullBuffer || oBuffer
 
-    start = this.start;
-    end   = this.end;
+    start = this.start
+    end = this.end
 
-    buffer      = fullBuffer.slice(start, end);
-    expectedCrc = fullBuffer[end >= 0 ? end : fullBuffer.length + end];
-    expectedCrc = expectedCrc && expectedCrc.toString(16) || '00';
-    expectedCrc = common.pad(expectedCrc, 2);
+    buffer = fullBuffer.slice(start, end)
+    expectedCrc = fullBuffer[end >= 0 ? end : fullBuffer.length + end]
+    expectedCrc = expectedCrc && expectedCrc.toString(16) || '00'
+    expectedCrc = common.pad(expectedCrc, 2)
 
-    crc = common.crc(buffer);
+    crc = common.crc(buffer)
 
     if (expectedCrc !== crc) {
-      throw new Error(`Invalid CRC code. Actual: 0x${crc.toString(16)}, expected: 0x${expectedCrc.toString(16)}`);
+      throw new Error(`Invalid CRC code. Actual: 0x${crc.toString(16)}, expected: 0x${expectedCrc.toString(16)}`)
     }
 
-    return crc;
+    return crc
   }
 
   /**
@@ -66,8 +66,8 @@ class CRC extends Struct {
    * @param {string} hex
    */
   serialize(value, hex) {
-    return common.crc(hex);
+    return common.crc(hex)
   }
 }
 
-module.exports = CRC;
+module.exports = CRC

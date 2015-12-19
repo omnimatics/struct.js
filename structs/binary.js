@@ -1,8 +1,8 @@
 'use strict';
 
-const _      = require('lodash');
-const common = require('../libs/common');
-const Struct = require('./');
+const _ = require('lodash')
+const common = require('../libs/common')
+const Struct = require('./')
 
 /**
  * @class Binary
@@ -14,7 +14,7 @@ class Binary extends Struct {
    * @param {Array} struct
    */
   constructor(struct) {
-    super(struct);
+    super(struct)
   }
 
   /**
@@ -23,10 +23,10 @@ class Binary extends Struct {
    * @method length
    */
   length() {
-    const totalLen = _totalLength(this.struct);
+    const totalLen = _totalLength(this.struct)
 
     // convert bit length to bytes
-    return Math.ceil(totalLen / 8);
+    return Math.ceil(totalLen / 8)
   }
 
   /**
@@ -38,36 +38,36 @@ class Binary extends Struct {
    * @param {Buffer} fullBuffer
    */
   parse(buffer, pos, fullBuffer) {
-    let totalLen, bin, ret;
+    let totalLen, bin, ret
 
-    const struct = this.struct;
+    const struct = this.struct
 
-    pos      = pos || 0;
-    totalLen = _totalLength(struct);
-    bin      = buffer.toString('hex', 0, this.length());
-    ret      = {};
+    pos = pos || 0
+    totalLen = _totalLength(struct)
+    bin = buffer.toString('hex', 0, this.length())
+    ret = {}
 
-    pos = 0;
-    bin = parseInt(bin, 16).toString(2);
-    bin = common.pad(bin, totalLen);
+    pos = 0
+    bin = parseInt(bin, 16).toString(2)
+    bin = common.pad(bin, totalLen)
 
-    _.each(struct, function (s) {
-      let key, len;
+    _.each(struct, (s) => {
+      let key, len
 
-      key = s[0];
-      len = s[1];
+      key = s[0]
+      len = s[1]
 
       if (!_validLength(len)) {
-        throw new Error(`Invalid length, please specify a number. Got : ${key} => ${len}`);
+        throw new Error(`Invalid length, please specify a number. Got: ${key} => ${len}`)
       }
 
-      ret[key] = bin.substring(pos, pos + len);
-      ret[key] = parseInt(ret[key], 2);
+      ret[key] = bin.substring(pos, pos + len)
+      ret[key] = parseInt(ret[key], 2)
 
-      pos += len;
-    });
+      pos += len
+    })
 
-    return ret;
+    return ret
   }
 
   /**
@@ -77,26 +77,26 @@ class Binary extends Struct {
    * @param {Object} json
    */
   serialize(json) {
-    let bin, hex;
+    let bin, hex
 
-    bin = '';
-    hex = '';
+    bin = ''
+    hex = ''
 
-    _.each(this.struct, function (s) {
-      let key, len, val;
+    _.each(this.struct, (s) => {
+      let key, len, val
 
-      key = s[0];
-      len = s[1];
-      val = Number(json[key]).toString(2);
+      key = s[0]
+      len = s[1]
+      val = Number(json[key]).toString(2)
 
-      bin += common.pad(val, len);
-    });
+      bin += common.pad(val, len)
+    })
 
-    hex = parseInt(bin, 2).toString(16);
+    hex = parseInt(bin, 2).toString(16)
 
     // 1 byte = 2 hex numbers,
     // pad accordingly
-    return common.pad(hex, this.length() * 2);
+    return common.pad(hex, this.length() * 2)
   }
 }
 
@@ -107,13 +107,9 @@ class Binary extends Struct {
  * @param {Array} struct
  */
 function _totalLength(struct) {
-  const lens = _.map(struct, function (s) {
-    return s[1];
-  });
+  const lens = _.map(struct, (s) => s[1]);
 
-  return _.reduce(lens, function (prev, curr) {
-    return prev + curr;
-  });
+  return _.reduce(lens, (p, c) => p + c)
 }
 
 /**
@@ -123,13 +119,13 @@ function _totalLength(struct) {
  * @param {number} len
  */
 function _validLength(len) {
-  let ret = true;
+  let ret = true
 
   if (!_.isNumber(len) || len < 0) {
-    ret = false;
+    ret = false
   }
 
-  return ret;
+  return ret
 }
 
-module.exports = Binary;
+module.exports = Binary
